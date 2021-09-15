@@ -1,0 +1,18 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource ignored files
+/dataSources/
+/dataSources.xml
+/dataSources.local.xml
+
+/libraries
+
+#Sonarlint
+sonarlint-state.xml
+sonarlint/
+
+#Discord Integration
+discord.xml
