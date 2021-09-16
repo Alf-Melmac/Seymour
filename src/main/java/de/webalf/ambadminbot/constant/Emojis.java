@@ -10,6 +10,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Emojis {
+	//Codepoint notation
+	THUMBS_UP("U+1F44D"),
+	THUMBS_DOWN("U+1F44E"),
+
 	//Standard discord notation
 	CHECKBOX(":ballot_box_with_check:");
 

@@ -1,5 +1,6 @@
 package de.webalf.ambadminbot.util;
 
+import de.webalf.ambadminbot.constant.Emojis;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
@@ -63,5 +64,14 @@ public final class InteractionUtils {
 	 */
 	public static void replyAndRemoveComponents(@NonNull ComponentInteraction interaction, @NonNull String reply) {
 		interaction.editMessage(reply).setActionRows().queue();
+	}
+
+	/**
+	 * Replies with a checkbox
+	 *
+	 * @param interaction finished interaction
+	 */
+	public static void finishedSlashCommandAction(@NonNull Interaction interaction) {
+		reply(interaction, Emojis.CHECKBOX.getNotation());
 	}
 }
