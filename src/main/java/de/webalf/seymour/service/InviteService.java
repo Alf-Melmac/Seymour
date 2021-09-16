@@ -8,10 +8,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Invite;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.*;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +19,7 @@ import java.util.*;
 
 import static de.webalf.seymour.util.EmbedUtils.embedBuilder;
 import static de.webalf.seymour.util.MessageUtils.sendMessage;
+import static de.webalf.seymour.util.StringUtils.inviteToString;
 import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
@@ -35,6 +34,7 @@ public class InviteService {
 
 	@Getter
 	private static final Map<Long, List<Invite>> GUILD_INVITES_MAP = new HashMap<>();
+	private static Integer VANITY_URL_USES = null;
 
 	/**
 	 * Fills the invite cache for the given guild
@@ -43,6 +43,12 @@ public class InviteService {
 	 */
 	private static void fillInvitesMap(@NonNull Guild guild) {
 		guild.retrieveInvites().queue(invites -> GUILD_INVITES_MAP.put(guild.getIdLong(), new ArrayList<>(invites)));
+	}
+
+	private static void setVanityUrlUses(@NonNull Guild guild) {
+		if (guild.getVanityCode() != null) {
+			guild.retrieveVanityInvite().queue(vanityInvite -> VANITY_URL_USES = vanityInvite.getUses());
+		}
 	}
 
 	/**
@@ -56,6 +62,7 @@ public class InviteService {
 			return;
 		}
 		fillInvitesMap(guild);
+		setVanityUrlUses(guild);
 	}
 
 	private static boolean validGuild(@NonNull Guild guild) {
@@ -137,10 +144,26 @@ public class InviteService {
 				}
 			}
 			if (!found) {
-				sendErrorEmbed(member, modLogChannel, oldInvites, invites);
+				checkForVanityUrl(guild, member, invites, oldInvites, modLogChannel);
 			}
 			GUILD_INVITES_MAP.put(guild.getIdLong(), invites);
 		});
+	}
+
+	private static void checkForVanityUrl(@NotNull Guild guild, Member member, List<Invite> invites, List<Invite> oldInvites, TextChannel modLogChannel) {
+		if (VANITY_URL_USES != null) {
+			guild.retrieveVanityInvite()
+					.queue(vanityInvite -> {
+						if (VANITY_URL_USES != vanityInvite.getUses()) {
+							sendLogEmbed(member, modLogChannel, vanityInvite);
+							VANITY_URL_USES = vanityInvite.getUses();
+						} else {
+							sendErrorEmbed(member, modLogChannel, oldInvites, invites, VANITY_URL_USES, vanityInvite);
+						}
+					}, fail -> sendErrorEmbed(member, modLogChannel, oldInvites, invites, fail));
+		} else {
+			sendErrorEmbed(member, modLogChannel, oldInvites, invites);
+		}
 	}
 
 	/**
@@ -153,22 +176,49 @@ public class InviteService {
 		return ChannelUtils.getChannel(discordProperties.getModLog().get(guild.getIdLong()), guild, "modLog");
 	}
 
-	private void sendLogEmbed(Member member, TextChannel modLogChannel, Invite oldInvite) {
+	private static void sendLogEmbed(Member member, TextChannel modLogChannel, Invite oldInvite) {
 		sendMessage(modLogChannel, buildInviteEmbed(member, oldInvite));
 	}
 
-	private EmbedBuilder buildInviteEmbed(@NonNull Member member, @NonNull Invite invite) {
+	private static void sendLogEmbed(Member member, TextChannel modLogChannel, VanityInvite oldInvite) {
+		sendMessage(modLogChannel, buildInviteEmbed(member, oldInvite));
+	}
+
+	private static EmbedBuilder buildInviteEmbed(@NonNull Member member, @NonNull Invite invite) {
 		return embedBuilder(Color.GREEN, member, new OneLineField("Member used invite", member.getAsMention() + " **" + invite.getCode() + "**"));
 	}
 
-	private void sendErrorEmbed(@NonNull Member member, @NonNull TextChannel modLogChannel, List<Invite> oldInvites, List<Invite> invites) {
+	private static EmbedBuilder buildInviteEmbed(@NonNull Member member, @NonNull VanityInvite invite) {
+		return embedBuilder(Color.ORANGE, member, new OneLineField("Member used vanity invite", member.getAsMention() + " **" + invite.getCode() + "**"));
+	}
+
+	private static void sendErrorEmbed(Member member, TextChannel modLogChannel, List<Invite> oldInvites, List<Invite> invites) {
 		sendMessage(modLogChannel, buildErrorEmbed(member, oldInvites, invites));
 	}
 
-	private EmbedBuilder buildErrorEmbed(@NonNull Member member, List<Invite> oldInvites, List<Invite> invites) {
+	private static void sendErrorEmbed(Member member, TextChannel modLogChannel, List<Invite> oldInvites, List<Invite> invites, Integer oldVanityUsages, VanityInvite vanityInvite) {
+		sendMessage(modLogChannel, buildErrorEmbed(member, oldInvites, invites, oldVanityUsages, vanityInvite));
+	}
+
+	private static void sendErrorEmbed(Member member, TextChannel modLogChannel, List<Invite> oldInvites, List<Invite> invites, Throwable fail) {
+		sendMessage(modLogChannel, buildErrorEmbed(member, oldInvites, invites, fail));
+	}
+
+	private static EmbedBuilder buildErrorEmbed(@NonNull Member member, List<Invite> oldInvites, List<Invite> invites) {
 		return embedBuilder(Color.RED, member,
 				new OneLineField("Member used invite", member.getAsMention() + " **Couldn't acquire invite code**"),
 				new OneLineField("Old Invites", invitesToString(oldInvites)),
 				new OneLineField("New Invites", invitesToString(invites)));
+	}
+
+	private static EmbedBuilder buildErrorEmbed(Member member, List<Invite> oldInvites, List<Invite> invites, Integer oldVanityUsages, VanityInvite vanityInvite) {
+		return embedBuilder(buildErrorEmbed(member, oldInvites, invites),
+				new OneLineField("Old Vanity Url usages", Integer.toString(oldVanityUsages)),
+				new OneLineField("New Vanity Url", inviteToString(vanityInvite)));
+	}
+
+	private static EmbedBuilder buildErrorEmbed(Member member, List<Invite> oldInvites, List<Invite> invites, @NonNull Throwable fail) {
+		return embedBuilder(buildErrorEmbed(member, oldInvites, invites),
+				new OneLineField("Error while getting vanity url", fail.getMessage()));
 	}
 }

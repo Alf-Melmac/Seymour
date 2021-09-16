@@ -32,6 +32,13 @@ public final class EmbedUtils {
 		return embedBuilder;
 	}
 
+	public static EmbedBuilder embedBuilder(@NonNull EmbedBuilder existingBuilder, MessageEmbed.Field... fields) {
+		for (MessageEmbed.Field field : fields) {
+			existingBuilder.addField(field);
+		}
+		return existingBuilder;
+	}
+
 	/**
 	 * {@link net.dv8tion.jda.api.entities.MessageEmbed.Field} which only adds a new constructor that defaults
 	 * {@link net.dv8tion.jda.api.entities.MessageEmbed.Field#inline} to false
