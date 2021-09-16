@@ -37,6 +37,8 @@
 		<springframework.boot.version>2.5.4</springframework.boot.version>
 		<!--https://projectlombok.org/changelog -->
 		<lombok.version>1.18.20</lombok.version>
+		<!--https://github.com/atteo/classindex/releases -->
+		<classindex.version>3.11</classindex.version>
 		<!--https://ci.dv8tion.net/job/JDA/changes -->
 		<jda.version>4.3.0_324</jda.version>
 	</properties>
@@ -52,6 +54,12 @@
 			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.atteo.classindex</groupId>
+			<artifactId>classindex</artifactId>
+			<version>${classindex.version}</version>
+		</dependency>
+
 		<!--Discord-->
 		<dependency>
 			<groupId>net.dv8tion</groupId>
@@ -94,6 +102,11 @@
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>org.atteo.classindex</groupId>
+							<artifactId>classindex</artifactId>
+							<version>${classindex.version}</version>
 						</path>
 						<dependency>
 							<groupId>org.springframework.boot</groupId>

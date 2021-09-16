@@ -3,6 +3,8 @@ package de.webalf.ambadminbot.service;
 import de.webalf.ambadminbot.configuration.properties.DiscordProperties;
 import de.webalf.ambadminbot.service.listener.GuildInviteListener;
 import de.webalf.ambadminbot.service.listener.GuildReadyListener;
+import de.webalf.ambadminbot.service.listener.InteractionListener;
+import de.webalf.ambadminbot.util.CommandClassHelper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 public class BotService {
 	private final DiscordProperties discordProperties;
 	private final InviteService inviteService;
+	private final SlashCommandsService slashCommandsService;
+	private final CommandClassHelper commandClassHelper;
 
 	@Getter
 	private JDA jda;
@@ -45,8 +49,9 @@ public class BotService {
 					.createLight(token)
 					.enableIntents(GUILD_MEMBERS, GUILD_INVITES)
 					.addEventListeners(
-							new GuildReadyListener(inviteService),
-							new GuildInviteListener(inviteService))
+							new GuildReadyListener(inviteService, slashCommandsService),
+							new GuildInviteListener(inviteService),
+							new InteractionListener(commandClassHelper))
 					.disableIntents(GUILD_BANS, GUILD_EMOJIS, GUILD_WEBHOOKS, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, GUILD_MESSAGE_TYPING, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, DIRECT_MESSAGE_TYPING)
 					.build();
 		} catch (LoginException e) {

@@ -1,6 +1,8 @@
 package de.webalf.ambadminbot.service.listener;
 
 import de.webalf.ambadminbot.service.InviteService;
+import de.webalf.ambadminbot.service.SlashCommandsService;
+import de.webalf.ambadminbot.util.RoleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,10 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GuildReadyListener extends ListenerAdapter {
 	private final InviteService inviteService;
+	private final SlashCommandsService slashCommandsService;
 
 	@Override
 	public void onGuildReady(@NotNull GuildReadyEvent event) {
 		final Guild guild = event.getGuild();
 		inviteService.initialize(guild);
+		RoleUtils.checkRequiredRoles(guild);
+		slashCommandsService.updateCommands(guild);
 	}
 }

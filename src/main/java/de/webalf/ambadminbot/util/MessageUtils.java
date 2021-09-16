@@ -44,7 +44,7 @@ public final class MessageUtils {
 		channel.sendMessageEmbeds(embedBuilder.build()).queue();
 	}
 
-	private static Consumer<Message> doNothing() {
+	static Consumer<Message> doNothing() {
 		return unused -> {};
 	}
 }
