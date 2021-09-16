@@ -5,10 +5,7 @@ import de.webalf.ambadminbot.model.annotations.SelectionMenuListener;
 import de.webalf.ambadminbot.model.annotations.SlashCommand;
 import de.webalf.ambadminbot.util.SelectionMenuUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
@@ -29,6 +26,7 @@ import static de.webalf.ambadminbot.util.PermissionHelper.Authorization.SYS_ADMI
 public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 	private enum Command {
 		PING,
+		GUILD_TEST,
 		CHANNEL_TEST,
 		USER_TEST,
 		CLEAR_CHANNEL;
@@ -55,6 +53,10 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 		switch (Command.valueOf(event.getValues().get(0))) {
 			case PING:
 				replyAndRemoveComponents(event, "Pong");
+				break;
+			case GUILD_TEST:
+				final Guild guild = event.getGuild();
+				replyAndRemoveComponents(event, "Guild ID: `" + guild.getId() + "` Channel Name: `" + guild.getName() + "`");
 				break;
 			case CHANNEL_TEST:
 				final MessageChannel channel = event.getChannel();
