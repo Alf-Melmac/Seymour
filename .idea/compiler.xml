@@ -3,7 +3,7 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Annotation profile for ambAdminBot" enabled="true">
+      <profile name="Annotation profile for Seymour" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -48,16 +48,17 @@
           <entry name="$MAVEN_REPOSITORY$/org/apache/felix/org.apache.felix.framework/5.4.0/org.apache.felix.framework-5.4.0.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/springframework/boot/spring-boot-configuration-processor/2.5.4/spring-boot-configuration-processor-2.5.4.jar" />
         </processorPath>
+        <module name="seymour" />
         <module name="ambAdminBot" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="ambAdminBot" target="11" />
+      <module name="seymour" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="ambAdminBot" options="-parameters" />
+      <module name="seymour" options="-parameters" />
     </option>
   </component>
 </project>

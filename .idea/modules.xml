@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/ambAdminBot.iml" filepath="$PROJECT_DIR$/ambAdminBot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/seymour.iml" filepath="$PROJECT_DIR$/seymour.iml" />
     </modules>
   </component>
 </project>

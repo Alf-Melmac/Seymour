@@ -22,10 +22,10 @@
 	</repositories>
 
 	<groupId>de.webalf</groupId>
-	<artifactId>ambAdminBot</artifactId>
+	<artifactId>seymour</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>ambAdminBot</name>
-	<description>Discord Bot including administrative utilities</description>
+	<name>Seymour</name>
+	<description>Discord Bot including useful utilities not requiring persistent storage</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
