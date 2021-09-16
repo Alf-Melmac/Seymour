@@ -3,6 +3,7 @@ package de.webalf.seymour.service.command;
 import de.webalf.seymour.constant.Emojis;
 import de.webalf.seymour.model.annotations.SelectionMenuListener;
 import de.webalf.seymour.model.annotations.SlashCommand;
+import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.util.SelectionMenuUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.*;
@@ -15,6 +16,7 @@ import java.util.Arrays;
 import static de.webalf.seymour.util.InteractionUtils.addSelectionMenu;
 import static de.webalf.seymour.util.InteractionUtils.replyAndRemoveComponents;
 import static de.webalf.seymour.util.PermissionHelper.Authorization.SYS_ADMINISTRATION;
+import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
  * @author Alf
@@ -29,7 +31,8 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 		GUILD_TEST,
 		CHANNEL_TEST,
 		USER_TEST,
-		CLEAR_CHANNEL;
+		CLEAR_CHANNEL,
+		INVITE_LIST;
 	}
 
 	@Override
@@ -76,6 +79,9 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 					message.delete().queue();
 				});
 				replyAndRemoveComponents(event, "Deletion started");
+				break;
+			case INVITE_LIST:
+				replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES_MAP().get(event.getGuild().getIdLong())));
 				break;
 			default:
 				replyAndRemoveComponents(event, Emojis.CHECKBOX.getNotation());

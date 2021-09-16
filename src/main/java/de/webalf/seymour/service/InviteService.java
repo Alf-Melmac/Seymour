@@ -3,6 +3,7 @@ package de.webalf.seymour.service;
 import de.webalf.seymour.configuration.properties.DiscordProperties;
 import de.webalf.seymour.util.ChannelUtils;
 import de.webalf.seymour.util.EmbedUtils.OneLineField;
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.*;
 
 import static de.webalf.seymour.util.EmbedUtils.embedBuilder;
 import static de.webalf.seymour.util.MessageUtils.sendMessage;
+import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
  * @author Alf
@@ -31,6 +33,7 @@ import static de.webalf.seymour.util.MessageUtils.sendMessage;
 public class InviteService {
 	private final DiscordProperties discordProperties;
 
+	@Getter
 	private static final Map<Long, List<Invite>> GUILD_INVITES_MAP = new HashMap<>();
 
 	/**
@@ -165,6 +168,7 @@ public class InviteService {
 	private EmbedBuilder buildErrorEmbed(@NonNull Member member, List<Invite> oldInvites, List<Invite> invites) {
 		return embedBuilder(Color.RED, member,
 				new OneLineField("Member used invite", member.getAsMention() + " **Couldn't acquire invite code**"),
-				new OneLineField("Invites", oldInvites + "\n" + invites));
+				new OneLineField("Old Invites", invitesToString(oldInvites)),
+				new OneLineField("New Invites", invitesToString(invites)));
 	}
 }
