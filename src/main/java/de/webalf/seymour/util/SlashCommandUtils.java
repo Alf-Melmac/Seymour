@@ -4,6 +4,7 @@ import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
@@ -15,6 +16,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import static de.webalf.seymour.util.MentionUtils.isSnowflake;
+import static de.webalf.seymour.util.StringUtils.removeNonDigitCharacters;
 
 /**
  * @author Alf
@@ -102,5 +106,14 @@ public final class SlashCommandUtils {
 	 */
 	public static long getUserOption(@NonNull OptionMapping option) {
 		return option.getAsUser().getIdLong();
+	}
+
+	public static MessageChannel getChannelOption(@NonNull OptionMapping option) {
+		return option.getAsMessageChannel();
+	}
+
+	public static String getMessageIdOption(@NonNull OptionMapping option) {
+		final String messageId = removeNonDigitCharacters(getStringOption(option));
+		return isSnowflake(messageId) ? messageId : null;
 	}
 }
