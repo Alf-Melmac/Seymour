@@ -146,7 +146,7 @@ public class InviteService {
 			if (!found) {
 				checkForVanityUrl(guild, member, invites, oldInvites, modLogChannel);
 			}
-			GUILD_INVITES_MAP.put(guild.getIdLong(), invites);
+			GUILD_INVITES_MAP.put(guild.getIdLong(), new ArrayList<>(invites));
 		});
 	}
 
