@@ -36,6 +36,7 @@ public class Copy implements DiscordSlashCommand {
 	public void execute(SlashCommandEvent event) {
 		log.trace("Slash command: copy");
 
+		@SuppressWarnings("ConstantConditions") //Required option
 		final String messageId = getMessageIdOption(event.getOption(OPTION_MESSAGE_ID));
 		if (messageId == null) {
 			reply(event, "Das ist keine gültige Nachrichten-ID.");
@@ -44,6 +45,7 @@ public class Copy implements DiscordSlashCommand {
 
 		event.getChannel().retrieveMessageById(messageId)
 				.queue(message -> {
+					@SuppressWarnings("ConstantConditions") //Required option
 					final MessageChannel channelOption = getChannelOption(event.getOption(OPTION_NEW_CHANNEL));
 					if (channelOption == null) {
 						reply(event, "Bitte einen Kanal auswählen.");
