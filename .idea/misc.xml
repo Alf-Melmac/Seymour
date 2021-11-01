@@ -6,6 +6,16 @@
       <item index="1" class="java.lang.String" itemvalue="de.webalf.seymour.model.annotations.SlashCommand" />
     </list>
   </component>
+  <component name="MavenCompilerTasksManager">
+    <option name="beforeRebuildTask">
+      <set>
+        <MavenCompilerTask>
+          <option name="goal" value="clean" />
+          <option name="projectPath" value="$PROJECT_DIR$/pom.xml" />
+        </MavenCompilerTask>
+      </set>
+    </option>
+  </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
