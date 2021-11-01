@@ -1,6 +1,7 @@
 package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.model.annotations.SlashCommand;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
@@ -33,22 +34,26 @@ public class Vote implements DiscordSlashCommand {
 	@Override
 	public void execute(SlashCommandEvent event) {
 		log.trace("Slash command: vote");
+		final MessageChannel channel = event.getChannel();
 
 		String messageId = getOptionalStringOption(event.getOption(OPTION_MESSAGE_ID));
 		if (messageId == null) {
-			messageId = event.getChannel().getLatestMessageId();
+			channel.getHistory().retrievePast(1)
+					.queue(messages -> vote(event, channel, messages.get(0).getId()));
 		} else {
 			messageId = removeNonDigitCharacters(messageId);
-		}
-		if (!isSnowflake(messageId)) {
-			reply(event, "Das ist keine gültige ID oder erkennbares Argument.");
-			return;
-		}
+			if (!isSnowflake(messageId)) {
+				reply(event, "Das ist keine gültige ID oder erkennbares Argument.");
+				return;
+			}
 
-		final MessageChannel channel = event.getChannel();
-		final String finalMessageId = messageId;
+			vote(event, channel, messageId);
+		}
+	}
+
+	private void vote(SlashCommandEvent event, @NonNull MessageChannel channel, String messageId) {
 		channel.addReactionById(messageId, THUMBS_UP.getNotation()).queue(unused ->
-						channel.addReactionById(finalMessageId, THUMBS_DOWN.getNotation()).queue(unused1 ->
+						channel.addReactionById(messageId, THUMBS_DOWN.getNotation()).queue(unused1 ->
 								finishedSlashCommandAction(event)),
 				ignored -> reply(event, "Nachricht nicht gefunden."));
 	}
