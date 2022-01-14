@@ -2,11 +2,15 @@ package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.restaction.MessageAction;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 
 import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
@@ -51,7 +55,16 @@ public class Copy implements DiscordSlashCommand {
 						reply(event, "Bitte einen Kanal auswählen.");
 						return;
 					}
-					channelOption.sendMessage(message).queue(ignored -> finishedSlashCommandAction(event));
+					MessageAction messageAction = channelOption.sendMessage(message);
+					for (Message.Attachment attachment : message.getAttachments()) {
+						try {
+							messageAction = messageAction.addFile(new URL(attachment.getProxyUrl()).openStream(), attachment.getFileName());
+						} catch (IOException e) {
+							log.error("Failed to open attachment {} ({})", attachment.getFileName(), attachment.getProxyUrl(), e);
+						}
+					}
+
+					messageAction.queue(ignored -> finishedSlashCommandAction(event));
 				}, ignored -> reply(event, "Nachricht nicht gefunden."));
 	}
 
