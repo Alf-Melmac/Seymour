@@ -25,12 +25,12 @@ public final class ChannelUtils {
 	 */
 	public static TextChannel getChannel(Long channelId, @NonNull Guild guild, String channelType) {
 		if (channelId == null) {
-			log.warn("Log channel {} not configured.", channelType);
+			log.warn("Channel {} not configured.", channelType);
 			return null;
 		}
 		final TextChannel channel = guild.getJDA().getTextChannelById(channelId);
 		if (channel == null) {
-			log.error("Configured log channel {} doesn't exist.", channelType);
+			log.error("Configured channel {} with id {} doesn't exist.", channelType, channelId);
 			return null;
 		}
 		return channel;

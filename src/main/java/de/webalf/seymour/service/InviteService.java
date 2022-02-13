@@ -34,7 +34,7 @@ public class InviteService {
 
 	@Getter
 	private static final Map<Long, List<Invite>> GUILD_INVITES_MAP = new HashMap<>();
-	private static Integer VANITY_URL_USES = null;
+	private static Integer vanityUrlUses = null;
 
 	/**
 	 * Fills the invite cache for the given guild
@@ -47,7 +47,7 @@ public class InviteService {
 
 	private static void setVanityUrlUses(@NonNull Guild guild) {
 		if (guild.getVanityCode() != null) {
-			guild.retrieveVanityInvite().queue(vanityInvite -> VANITY_URL_USES = vanityInvite.getUses());
+			guild.retrieveVanityInvite().queue(vanityInvite -> vanityUrlUses = vanityInvite.getUses());
 		}
 	}
 
@@ -65,14 +65,14 @@ public class InviteService {
 		setVanityUrlUses(guild);
 	}
 
-	private static boolean validGuild(@NonNull Guild guild) {
-		return validGuild(guild.getIdLong());
+	private static boolean invalidGuild(@NonNull Guild guild) {
+		return invalidGuild(guild.getIdLong());
 	}
 
-	private static boolean validGuild(long guildId) {
+	private static boolean invalidGuild(long guildId) {
 		final boolean validGuild = GUILD_INVITES_MAP.containsKey(guildId);
 		if (!validGuild) log.info("Invalid guild {}. Missing modLog configuration?", guildId);
-		return validGuild;
+		return !validGuild;
 	}
 
 	/**
@@ -82,7 +82,7 @@ public class InviteService {
 	 * @param invite  created invite
 	 */
 	public void newInvite(long guildId, Invite invite) {
-		if (!validGuild(guildId)) {
+		if (invalidGuild(guildId)) {
 			return;
 		}
 		log.trace("Detected new invite in {}", guildId);
@@ -98,7 +98,7 @@ public class InviteService {
 	 * @param guild to refresh invites for
 	 */
 	public void deletedInvite(Guild guild) {
-		if (!validGuild(guild)) {
+		if (invalidGuild(guild)) {
 			return;
 		}
 		log.trace("Detected deleted invite in {}", guild.getIdLong());
@@ -107,13 +107,13 @@ public class InviteService {
 	}
 
 	/**
-	 * Posts a message to the {@link DiscordProperties#modLog} channel and tries to append the used invite link
+	 * Posts a message to the {@link DiscordProperties#getModLog()} channel and tries to append the used invite link
 	 *
 	 * @param guild  joined into this guild
 	 * @param member joined member
 	 */
 	public void memberJoined(@NonNull Guild guild, Member member) {
-		if (!validGuild(guild)) {
+		if (invalidGuild(guild)) {
 			return;
 		}
 		log.trace("Detected member {} joined in {}", member.getIdLong(), guild.getIdLong());
@@ -151,14 +151,14 @@ public class InviteService {
 	}
 
 	private static void checkForVanityUrl(@NotNull Guild guild, Member member, List<Invite> invites, List<Invite> oldInvites, TextChannel modLogChannel) {
-		if (VANITY_URL_USES != null) {
+		if (vanityUrlUses != null) {
 			guild.retrieveVanityInvite()
 					.queue(vanityInvite -> {
-						if (VANITY_URL_USES != vanityInvite.getUses()) {
+						if (vanityUrlUses != vanityInvite.getUses()) {
 							sendLogEmbed(member, modLogChannel, vanityInvite);
-							VANITY_URL_USES = vanityInvite.getUses();
+							vanityUrlUses = vanityInvite.getUses();
 						} else {
-							sendErrorEmbed(member, modLogChannel, oldInvites, invites, VANITY_URL_USES, vanityInvite);
+							sendErrorEmbed(member, modLogChannel, oldInvites, invites, vanityUrlUses, vanityInvite);
 						}
 					}, fail -> sendErrorEmbed(member, modLogChannel, oldInvites, invites, fail));
 		} else {
