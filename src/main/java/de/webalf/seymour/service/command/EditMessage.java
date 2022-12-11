@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
-import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
+import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
 import static de.webalf.seymour.util.InteractionUtils.reply;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
@@ -45,7 +45,7 @@ public class EditMessage implements DiscordSlashCommand {
 
 		//noinspection ConstantConditions Required option
 		event.getChannel().editMessageById(messageId, getStringOption(event.getOption(OPTION_MESSAGE)))
-				.queue(unused -> finishedSlashCommandAction(event),
+				.queue(unused -> finishedCommandAction(event),
 						ignored -> reply(event, "Nachricht nicht bearbeitbar."));
 	}
 

@@ -1,5 +1,6 @@
 package de.webalf.seymour.util;
 
+import de.webalf.seymour.model.annotations.ContextMenu;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import de.webalf.seymour.service.command.DiscordSlashCommand;
 import lombok.NonNull;
@@ -33,7 +34,7 @@ public class CommandClassHelper {
 			Class<?>[] parameterTypes = declaredConstructor.getParameterTypes();
 
 			if (parameterTypes.length == 0) {
-				//Admin, Copy, PostMessage, Vote
+				//Admin, Copy, EditMessage, PostMessage, Vote
 				try {
 					constructor = declaredConstructor.newInstance();
 				} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -52,5 +53,9 @@ public class CommandClassHelper {
 
 	public static SlashCommand getSlashCommand(@NonNull Class<?> commandClass) {
 		return commandClass.getAnnotation(SlashCommand.class);
+	}
+
+	public static ContextMenu getContextMenu(@NonNull Class<?> commandClass) {
+		return commandClass.getAnnotation(ContextMenu.class);
 	}
 }

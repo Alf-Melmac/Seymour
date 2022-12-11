@@ -28,7 +28,7 @@ public class BotService {
 	private final DiscordProperties discordProperties;
 	private final InviteService inviteService;
 	private final WelcomeService welcomeService;
-	private final SlashCommandsService slashCommandsService;
+	private final CommandsService commandsService;
 	private final CommandClassHelper commandClassHelper;
 
 	private JDA jda;
@@ -46,7 +46,7 @@ public class BotService {
 				.createLight(token)
 				.enableIntents(GUILD_MEMBERS, GUILD_INVITES, MESSAGE_CONTENT)
 				.addEventListeners(
-						new GuildReadyListener(inviteService, welcomeService, slashCommandsService),
+						new GuildReadyListener(inviteService, welcomeService, commandsService),
 						new GuildInviteListener(inviteService),
 						new GuildMemberListener(inviteService, welcomeService),
 						new InteractionListener(commandClassHelper))

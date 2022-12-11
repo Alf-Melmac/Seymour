@@ -73,7 +73,7 @@ public final class InteractionUtils {
 	 *
 	 * @param interaction finished interaction
 	 */
-	public static void finishedSlashCommandAction(@NonNull IDeferrableCallback interaction) {
+	public static void finishedCommandAction(@NonNull IDeferrableCallback interaction) {
 		reply(interaction, Emojis.CHECKBOX.getFormatted());
 	}
 

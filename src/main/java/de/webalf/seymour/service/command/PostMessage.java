@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.util.List;
 
-import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
+import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
 import static de.webalf.seymour.util.MessageUtils.sendMessage;
 import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
 
@@ -38,7 +38,7 @@ public class PostMessage implements DiscordSlashCommand {
 
 		sendMessage(event, message);
 
-		finishedSlashCommandAction(event);
+		finishedCommandAction(event);
 	}
 
 	@Override

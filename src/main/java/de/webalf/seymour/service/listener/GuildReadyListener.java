@@ -1,7 +1,7 @@
 package de.webalf.seymour.service.listener;
 
+import de.webalf.seymour.service.CommandsService;
 import de.webalf.seymour.service.InviteService;
-import de.webalf.seymour.service.SlashCommandsService;
 import de.webalf.seymour.service.WelcomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class GuildReadyListener extends ListenerAdapter {
 	private final InviteService inviteService;
 	private final WelcomeService welcomeService;
-	private final SlashCommandsService slashCommandsService;
+	private final CommandsService commandsService;
 
 	@Override
 	public void onGuildReady(@NotNull GuildReadyEvent event) {
 		final Guild guild = event.getGuild();
 		inviteService.initialize(guild);
 		welcomeService.initialize(guild);
-		slashCommandsService.updateCommands(guild);
+		commandsService.updateCommands(guild);
 	}
 }

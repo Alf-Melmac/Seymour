@@ -1,7 +1,9 @@
 package de.webalf.seymour.service;
 
+import de.webalf.seymour.model.annotations.ContextMenu;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import de.webalf.seymour.util.CommandClassHelper;
+import de.webalf.seymour.util.ContextMenuUtils;
 import de.webalf.seymour.util.SlashCommandUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +20,8 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static de.webalf.seymour.util.CommandClassHelper.getContextMenu;
 import static de.webalf.seymour.util.CommandClassHelper.getSlashCommand;
 
 /**
@@ -29,7 +31,7 @@ import static de.webalf.seymour.util.CommandClassHelper.getSlashCommand;
 @Service
 @Slf4j
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-public class SlashCommandsService {
+public class CommandsService {
 	private final CommandClassHelper commandClassHelper;
 
 	/**
@@ -39,8 +41,8 @@ public class SlashCommandsService {
 	 */
 	public void updateCommands(@NonNull Guild guild) {
 		log.info("Updating commands for {}...", guild.getName());
-		final List<CommandData> commandDataList = SlashCommandUtils.commandToClassMap.values().stream()
-				.map(slashCommandClass -> { //For each slash command
+		final List<SlashCommandData> slashCommands = SlashCommandUtils.commandToClassMap.values().stream()
+				.map(slashCommandClass -> {
 					final SlashCommand slashCommand = getSlashCommand(slashCommandClass);
 					final SlashCommandData commandData = Commands
 							.slash(slashCommand.name().toLowerCase(), slashCommand.description())
@@ -49,10 +51,18 @@ public class SlashCommandsService {
 						commandData.addOptions(getOptions(slashCommandClass, slashCommand.optionPosition()));
 					}
 					return commandData;
-				}).collect(Collectors.toUnmodifiableList());
-		log.info("Found {} commands. Starting update...", commandDataList.size());
+				}).toList();
+		log.info("Found {} slash commands.", slashCommands.size());
 
-		guild.updateCommands().addCommands(commandDataList).queue();
+		final List<CommandData> contextMenus = ContextMenuUtils.commandToClassMap.values().stream()
+				.map(contextMenuClass -> {
+					final ContextMenu contextMenu = getContextMenu(contextMenuClass);
+					return Commands
+							.context(contextMenu.type(), contextMenu.name().toLowerCase());
+				}).toList();
+		log.info("Found {} context menus.", contextMenus.size());
+
+		guild.updateCommands().addCommands(slashCommands).addCommands(contextMenus).queue();
 		log.info("Queued command update for {}.", guild.getName());
 	}
 

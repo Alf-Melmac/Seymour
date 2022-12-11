@@ -1,12 +1,14 @@
 package de.webalf.seymour.service.listener;
 
 import de.webalf.seymour.util.CommandClassHelper;
+import de.webalf.seymour.util.ContextMenuUtils;
 import de.webalf.seymour.util.SelectionMenuUtils;
 import de.webalf.seymour.util.SlashCommandUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -71,5 +73,25 @@ public class InteractionListener extends ListenerAdapter {
 	private void unknownException(StringSelectInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
 		log.error("Failed to process string selection menu selection {} with id {}", commandClass.getName(), event.getComponentId(), e);
 		replyAndRemoveComponents(event, "Tja, da ist wohl was schief gelaufen.");
+	}
+
+	@Override
+	public void onMessageContextInteraction(MessageContextInteractionEvent event) {
+		final String commandName = event.getName();
+		log.debug("Received message context interaction event: {} from {}", commandName, event.getUser().getId());
+
+		final Class<?> commandClass = ContextMenuUtils.get(commandName);
+		if (commandClass == null) {
+			log.error("Received not known context menu: {}", commandName);
+			return;
+		}
+
+		ephemeralDeferReply(event);
+
+		try {
+			commandClass.getMethod("perform", MessageContextInteractionEvent.class).invoke(commandClassHelper.getConstructor(commandClass), event);
+		} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+			unknownException(event, commandClass, e);
+		}
 	}
 }
