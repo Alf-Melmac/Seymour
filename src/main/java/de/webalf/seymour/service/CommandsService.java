@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,6 +48,8 @@ public class CommandsService {
 					final SlashCommandData commandData = Commands
 							.slash(slashCommand.name().toLowerCase(), slashCommand.description())
 							.setDefaultPermissions(DefaultMemberPermissions.enabledFor(slashCommand.authorization()));
+					Arrays.stream(slashCommand.localizedNames()).forEach(command -> commandData.setNameLocalization(command.locale(), command.name().toLowerCase()));
+					Arrays.stream(slashCommand.localizedDescriptions()).forEach(command -> commandData.setDescriptionLocalization(command.locale(), command.name()));
 					if (slashCommand.optionPosition() >= 0) { //Add options if present
 						commandData.addOptions(getOptions(slashCommandClass, slashCommand.optionPosition()));
 					}
@@ -57,8 +60,11 @@ public class CommandsService {
 		final List<CommandData> contextMenus = ContextMenuUtils.commandToClassMap.values().stream()
 				.map(contextMenuClass -> {
 					final ContextMenu contextMenu = getContextMenu(contextMenuClass);
-					return Commands
-							.context(contextMenu.type(), contextMenu.name().toLowerCase());
+					final CommandData commandData = Commands
+							.context(contextMenu.type(), contextMenu.name())
+							.setDefaultPermissions(DefaultMemberPermissions.enabledFor(contextMenu.authorization()));
+					Arrays.stream(contextMenu.localizedNames()).forEach(command -> commandData.setNameLocalization(command.locale(), command.name()));
+					return commandData;
 				}).toList();
 		log.info("Found {} context menus.", contextMenus.size());
 

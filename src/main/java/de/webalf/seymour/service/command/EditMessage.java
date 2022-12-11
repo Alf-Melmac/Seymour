@@ -1,5 +1,6 @@
 package de.webalf.seymour.service.command;
 
+import de.webalf.seymour.model.annotations.DiscordLocalization;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -14,22 +15,34 @@ import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
 import static de.webalf.seymour.util.InteractionUtils.reply;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
+import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
  * @author Alf
  * @since 28.10.2021
  */
 @Slf4j
-@SlashCommand(name = "editMessage",
-		description = "Ersetzt die Nachricht mit der übergebenen ID aus dem aktuellen Kanal mit dem übergebenen Text.",
+@SlashCommand(name = "edit_message",
+		localizedNames = {
+				@DiscordLocalization(locale = GERMAN, name = "nachricht_bearbeiten")
+		},
+		description = "Replaces the message with the passed ID from the current channel with the passed text.",
+		localizedDescriptions = {
+				@DiscordLocalization(locale = GERMAN, name = "Ersetzt die Nachricht mit der übergebenen ID aus dem aktuellen Kanal mit dem übergebenen Text.")
+		},
 		authorization = Permission.MESSAGE_MANAGE,
 		optionPosition = 0)
 public class EditMessage implements DiscordSlashCommand {
-	private static final String OPTION_MESSAGE_ID = "messageid";
-	private static final String OPTION_MESSAGE = "nachricht";
+	private static final String OPTION_MESSAGE_ID = "message-id";
+	private static final String OPTION_MESSAGE = "text";
 	private static final List<List<OptionData>> OPTIONS = List.of(
-			List.of(new OptionData(OptionType.STRING, OPTION_MESSAGE_ID, "ID der Nachricht, die bearbeitet werden soll.", true),
-					new OptionData(OptionType.STRING, OPTION_MESSAGE, "Zu versendender Text.", true))
+			List.of(
+					new OptionData(OptionType.STRING, OPTION_MESSAGE_ID, "ID of the message to be edited.", true)
+							.setNameLocalization(GERMAN, "nachrichten-id")
+							.setDescriptionLocalization(GERMAN, "ID der Nachricht, die bearbeitet werden soll."),
+					new OptionData(OptionType.STRING, OPTION_MESSAGE, "Text to send.", true)
+							.setNameLocalization(GERMAN, "text")
+							.setDescriptionLocalization(GERMAN, "Zu versendender Text."))
 	);
 
 	@Override

@@ -18,7 +18,11 @@ import java.lang.annotation.Target;
 public @interface SlashCommand {
 	String name();
 
+	DiscordLocalization[] localizedNames() default {};
+
 	String description();
+
+	DiscordLocalization[] localizedDescriptions() default {};
 
 	Permission authorization();
 

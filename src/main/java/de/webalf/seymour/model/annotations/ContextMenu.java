@@ -1,5 +1,6 @@
 package de.webalf.seymour.model.annotations;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.interactions.commands.Command.Type;
 import org.atteo.classindex.IndexAnnotated;
 
@@ -18,5 +19,9 @@ import java.lang.annotation.Target;
 public @interface ContextMenu {
 	String name();
 
+	DiscordLocalization[] localizedNames() default {};
+
 	Type type();
+
+	Permission authorization();
 }

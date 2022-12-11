@@ -62,22 +62,20 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 		log.trace("Selection menu: admin");
 
 		switch (Command.valueOf(event.getValues().get(0))) {
-			case PING:
-				replyAndRemoveComponents(event, "Pong");
-				break;
-			case GUILD_TEST:
+			case PING -> replyAndRemoveComponents(event, "Pong");
+			case GUILD_TEST -> {
 				final Guild guild = event.getGuild();
 				replyAndRemoveComponents(event, "Guild ID: `" + guild.getId() + "` Guild Name: `" + guild.getName() + "`");
-				break;
-			case CHANNEL_TEST:
+			}
+			case CHANNEL_TEST -> {
 				final Channel channel = event.getChannel();
 				replyAndRemoveComponents(event, "Channel ID: `" + channel.getId() + "` Channel Name: `" + channel.getName() + "`");
-				break;
-			case USER_TEST:
+			}
+			case USER_TEST -> {
 				final User author = event.getUser();
 				replyAndRemoveComponents(event, "Author ID: `" + author.getId() + "` Author Tag: `" + author.getAsTag() + "` Author Name: `" + author.getName() + "`");
-				break;
-			case CLEAR_CHANNEL:
+			}
+			case CLEAR_CHANNEL -> {
 				final TextChannel textChannel = event.getChannel().asTextChannel();
 				final List<Message> messages = new ArrayList<>();
 				textChannel.getIterableHistory()
@@ -88,13 +86,10 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 						})
 						.thenRun(() -> textChannel.purgeMessages(messages));
 				replyAndRemoveComponents(event, "Deletion started");
-				break;
-			case INVITE_LIST:
-				replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES_MAP().get(event.getGuild().getIdLong())));
-				break;
-			default:
-				replyAndRemoveComponents(event, Emojis.CHECKBOX.getFormatted());
-				break;
+			}
+			case INVITE_LIST ->
+					replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES_MAP().get(event.getGuild().getIdLong())));
+			default -> replyAndRemoveComponents(event, Emojis.CHECKBOX.getFormatted());
 		}
 	}
 }

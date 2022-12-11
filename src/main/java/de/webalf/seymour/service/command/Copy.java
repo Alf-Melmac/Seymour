@@ -1,5 +1,6 @@
 package de.webalf.seymour.service.command;
 
+import de.webalf.seymour.model.annotations.DiscordLocalization;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +16,12 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 import static de.webalf.seymour.util.InteractionUtils.failedSlashCommandAction;
 import static de.webalf.seymour.util.InteractionUtils.reply;
 import static de.webalf.seymour.util.SlashCommandUtils.getChannelOptionAsGuildMessageChannel;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
+import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
  * @author Alf
@@ -28,15 +29,25 @@ import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
  */
 @Slf4j
 @SlashCommand(name = "copy",
-		description = "Kopiert eine Nachricht aus dem aktuellen Kanal in einen anderen Kanal.",
+		localizedNames = {
+				@DiscordLocalization(locale = GERMAN, name = "kopieren")
+		},
+		description = "Copies a message from the current channel to another channel.",
+		localizedDescriptions = {
+				@DiscordLocalization(locale = GERMAN, name = "Kopiert eine Nachricht aus dem aktuellen Kanal in einen anderen Kanal.")
+		},
 		authorization = Permission.MESSAGE_MANAGE,
 		optionPosition = 0)
 public class Copy implements DiscordSlashCommand {
-	private static final String OPTION_MESSAGE_ID = "messageid";
-	private static final String OPTION_NEW_CHANNEL = "newchannel";
+	private static final String OPTION_MESSAGE_ID = "message-id";
+	private static final String OPTION_NEW_CHANNEL = "new-channel";
 	private static final List<List<OptionData>> OPTIONS = List.of(
-			List.of(new OptionData(OptionType.STRING, OPTION_MESSAGE_ID, "ID der Nachricht, die kopiert werden soll.", true),
-					new OptionData(OptionType.CHANNEL, OPTION_NEW_CHANNEL, "Kanal in den die Kopie versendet werden soll.", true))
+			List.of(new OptionData(OptionType.STRING, OPTION_MESSAGE_ID, "ID of the message to be copied.", true)
+							.setNameLocalization(GERMAN, "nachrichten-id")
+							.setDescriptionLocalization(GERMAN, "ID der Nachricht, die kopiert werden soll."),
+					new OptionData(OptionType.CHANNEL, OPTION_NEW_CHANNEL, "Channel to which the copy should be sent.", true)
+							.setNameLocalization(GERMAN, "neuer-kanal")
+							.setDescriptionLocalization(GERMAN, "Kanal in den die Kopie versendet werden soll."))
 	);
 
 	@Override
@@ -74,7 +85,7 @@ public class Copy implements DiscordSlashCommand {
 									log.error("Failed to open attachment {} ({})", attachment.getFileName(), attachment.getProxyUrl(), e);
 								}
 								return fileUpload;
-							}).collect(Collectors.toList()))
+							}).toList())
 							.build();
 
 					channelOption.sendMessage(messageCreateData)
