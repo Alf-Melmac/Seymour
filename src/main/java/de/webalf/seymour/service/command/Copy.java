@@ -1,22 +1,25 @@
 package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.model.annotations.SlashCommand;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.requests.restaction.MessageAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
-import java.io.IOException;
-import java.net.URL;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
-import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
+import static de.webalf.seymour.util.InteractionUtils.failedSlashCommandAction;
 import static de.webalf.seymour.util.InteractionUtils.reply;
-import static de.webalf.seymour.util.PermissionHelper.Authorization.ADMINISTRATIVE;
-import static de.webalf.seymour.util.SlashCommandUtils.getChannelOption;
+import static de.webalf.seymour.util.SlashCommandUtils.getChannelOptionAsGuildMessageChannel;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 
 /**
@@ -26,7 +29,7 @@ import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 @Slf4j
 @SlashCommand(name = "copy",
 		description = "Kopiert eine Nachricht aus dem aktuellen Kanal in einen anderen Kanal.",
-		authorization = ADMINISTRATIVE,
+		authorization = Permission.MESSAGE_MANAGE,
 		optionPosition = 0)
 public class Copy implements DiscordSlashCommand {
 	private static final String OPTION_MESSAGE_ID = "messageid";
@@ -37,7 +40,7 @@ public class Copy implements DiscordSlashCommand {
 	);
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: copy");
 
 		@SuppressWarnings("ConstantConditions") //Required option
@@ -49,23 +52,34 @@ public class Copy implements DiscordSlashCommand {
 
 		event.getChannel().retrieveMessageById(messageId)
 				.queue(message -> {
+					final OptionMapping optionMapping = event.getOption(OPTION_NEW_CHANNEL);
 					@SuppressWarnings("ConstantConditions") //Required option
-					final MessageChannel channelOption = getChannelOption(event.getOption(OPTION_NEW_CHANNEL));
+					final GuildMessageChannel channelOption = getChannelOptionAsGuildMessageChannel(optionMapping);
 					if (channelOption == null) {
-						reply(event, "Bitte einen Kanal auswählen.");
+						failedSlashCommandAction(event, "Der Kanal <#" + optionMapping.getAsString() + "> kann nicht erreicht werden.");
 						return;
 					}
-					MessageAction messageAction = channelOption.sendMessage(message);
-					for (Message.Attachment attachment : message.getAttachments()) {
-						try {
-							messageAction = messageAction.addFile(new URL(attachment.getProxyUrl()).openStream(), attachment.getFileName());
-						} catch (IOException e) {
-							log.error("Failed to open attachment {} ({})", attachment.getFileName(), attachment.getProxyUrl(), e);
-						}
+					if (!channelOption.canTalk()) {
+						failedSlashCommandAction(event, "Keine Schreibrecht im Zielkanal.");
+						return;
 					}
 
-					messageAction.queue(ignored -> finishedSlashCommandAction(event));
-				}, ignored -> reply(event, "Nachricht nicht gefunden."));
+					final MessageCreateData messageCreateData = MessageCreateBuilder
+							.fromMessage(message)
+							.setFiles(message.getAttachments().stream().map(attachment -> {
+								FileUpload fileUpload = null;
+								try {
+									fileUpload = FileUpload.fromData(attachment.getProxy().download().get(), attachment.getFileName());
+								} catch (ExecutionException | InterruptedException e) {
+									log.error("Failed to open attachment {} ({})", attachment.getFileName(), attachment.getProxyUrl(), e);
+								}
+								return fileUpload;
+							}).collect(Collectors.toList()))
+							.build();
+
+					channelOption.sendMessage(messageCreateData)
+							.queue(sendMessage -> reply(event, "Kopiert nach " + sendMessage.getChannel().getAsMention()));
+				}, ignored -> failedSlashCommandAction(event, "Nachricht nicht gefunden."));
 	}
 
 	@Override

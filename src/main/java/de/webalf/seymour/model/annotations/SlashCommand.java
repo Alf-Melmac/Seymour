@@ -1,14 +1,12 @@
 package de.webalf.seymour.model.annotations;
 
-import de.webalf.seymour.util.PermissionHelper.Authorization;
+import net.dv8tion.jda.api.Permission;
 import org.atteo.classindex.IndexAnnotated;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
-import static de.webalf.seymour.util.PermissionHelper.Authorization.ADMINISTRATIVE;
 
 /**
  * @author Alf
@@ -22,7 +20,7 @@ public @interface SlashCommand {
 
 	String description();
 
-	Authorization authorization() default ADMINISTRATIVE;
+	Permission authorization();
 
 	int optionPosition() default -1;
 }

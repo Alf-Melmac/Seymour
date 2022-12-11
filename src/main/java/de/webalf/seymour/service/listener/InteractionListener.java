@@ -6,8 +6,9 @@ import de.webalf.seymour.util.SlashCommandUtils;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -25,7 +26,7 @@ public class InteractionListener extends ListenerAdapter {
 	private final CommandClassHelper commandClassHelper;
 
 	@Override
-	public void onSlashCommand(@NonNull SlashCommandEvent event) {
+	public void onSlashCommandInteraction(@NonNull SlashCommandInteractionEvent event) {
 		final String commandName = event.getName();
 		log.debug("Received slash command: {} from {}", commandName, event.getUser().getId());
 
@@ -38,19 +39,19 @@ public class InteractionListener extends ListenerAdapter {
 		ephemeralDeferReply(event);
 
 		try {
-			commandClass.getMethod("execute", SlashCommandEvent.class).invoke(commandClassHelper.getConstructor(commandClass), event);
+			commandClass.getMethod("execute", SlashCommandInteractionEvent.class).invoke(commandClassHelper.getConstructor(commandClass), event);
 		} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
 			unknownException(event, commandClass, e);
 		}
 	}
 
-	private void unknownException(SlashCommandEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
+	private void unknownException(GenericCommandInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
 		log.error("Failed to execute slash command {} with options {}", commandClass.getName(), event.getOptions(), e);
 		reply(event, "Tja, da ist wohl was schief gelaufen.");
 	}
 
 	@Override
-	public void onSelectionMenu(@NonNull SelectionMenuEvent event) {
+	public void onStringSelectInteraction(@NonNull StringSelectInteractionEvent event) {
 		final String componentId = event.getComponentId();
 		log.debug("Received selection menu event: {} from {}", componentId, event.getUser().getId());
 
@@ -61,14 +62,14 @@ public class InteractionListener extends ListenerAdapter {
 		}
 
 		try {
-			aClass.getMethod("process", SelectionMenuEvent.class).invoke(commandClassHelper.getConstructor(aClass), event);
+			aClass.getMethod("process", StringSelectInteractionEvent.class).invoke(commandClassHelper.getConstructor(aClass), event);
 		} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
 			unknownException(event, aClass, e);
 		}
 	}
 
-	private void unknownException(SelectionMenuEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
-		log.error("Failed to process selection menu selection {} with id {}", commandClass.getName(), event.getComponentId(), e);
+	private void unknownException(StringSelectInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
+		log.error("Failed to process string selection menu selection {} with id {}", commandClass.getName(), event.getComponentId(), e);
 		replyAndRemoveComponents(event, "Tja, da ist wohl was schief gelaufen.");
 	}
 }

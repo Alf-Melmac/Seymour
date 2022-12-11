@@ -3,8 +3,9 @@ package de.webalf.seymour.service.command;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -15,7 +16,6 @@ import static de.webalf.seymour.constant.Emojis.THUMBS_UP;
 import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
 import static de.webalf.seymour.util.InteractionUtils.reply;
 import static de.webalf.seymour.util.MentionUtils.isSnowflake;
-import static de.webalf.seymour.util.PermissionHelper.Authorization.NONE;
 import static de.webalf.seymour.util.SlashCommandUtils.getOptionalStringOption;
 import static de.webalf.seymour.util.StringUtils.removeNonDigitCharacters;
 
@@ -24,7 +24,10 @@ import static de.webalf.seymour.util.StringUtils.removeNonDigitCharacters;
  * @since 16.09.2021
  */
 @Slf4j
-@SlashCommand(name = "vote", description = "Voting für eine Nachricht starten. Wenn nicht angegeben, wird die letzte Nachricht verwendet.", authorization = NONE, optionPosition = 0)
+@SlashCommand(name = "vote",
+		description = "Voting für eine Nachricht starten. Wenn nicht angegeben, wird die letzte Nachricht verwendet.",
+		authorization = Permission.MESSAGE_ADD_REACTION,
+		optionPosition = 0)
 public class Vote implements DiscordSlashCommand {
 	private static final String OPTION_MESSAGE_ID = "messageid";
 	private static final List<List<OptionData>> OPTIONS = List.of(
@@ -32,9 +35,9 @@ public class Vote implements DiscordSlashCommand {
 	);
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: vote");
-		final MessageChannel channel = event.getChannel();
+		final MessageChannelUnion channel = event.getChannel();
 
 		String messageId = getOptionalStringOption(event.getOption(OPTION_MESSAGE_ID));
 		if (messageId == null) {
@@ -51,9 +54,9 @@ public class Vote implements DiscordSlashCommand {
 		}
 	}
 
-	private void vote(SlashCommandEvent event, @NonNull MessageChannel channel, String messageId) {
-		channel.addReactionById(messageId, THUMBS_UP.getNotation()).queue(unused ->
-						channel.addReactionById(messageId, THUMBS_DOWN.getNotation()).queue(unused1 ->
+	private void vote(SlashCommandInteractionEvent event, @NonNull MessageChannelUnion channel, String messageId) {
+		channel.addReactionById(messageId, THUMBS_UP.getEmoji()).queue(unused ->
+						channel.addReactionById(messageId, THUMBS_DOWN.getEmoji()).queue(unused1 ->
 								finishedSlashCommandAction(event)),
 				ignored -> reply(event, "Nachricht nicht gefunden."));
 	}

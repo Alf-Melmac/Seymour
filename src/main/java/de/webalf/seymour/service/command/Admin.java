@@ -5,17 +5,23 @@ import de.webalf.seymour.model.annotations.SelectionMenuListener;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.util.SelectionMenuUtils;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.Channel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import static de.webalf.seymour.util.InteractionUtils.addSelectionMenu;
 import static de.webalf.seymour.util.InteractionUtils.replyAndRemoveComponents;
-import static de.webalf.seymour.util.PermissionHelper.Authorization.SYS_ADMINISTRATION;
 import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
@@ -23,7 +29,9 @@ import static de.webalf.seymour.util.StringUtils.invitesToString;
  * @since 16.09.2021
  */
 @Slf4j
-@SlashCommand(name = "admin", description = "Admin Utilities", authorization = SYS_ADMINISTRATION)
+@SlashCommand(name = "admin",
+		description = "Admin Utilities",
+		authorization = Permission.ADMINISTRATOR)
 @SelectionMenuListener("admin")
 public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 	private enum Command {
@@ -32,14 +40,14 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 		CHANNEL_TEST,
 		USER_TEST,
 		CLEAR_CHANNEL,
-		INVITE_LIST;
+		INVITE_LIST
 	}
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: admin");
 
-		final SelectionMenu.Builder selectionMenuBuilder = SelectionMenu.create(getClass().getAnnotation(SelectionMenuListener.class).value())
+		final StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create(getClass().getAnnotation(SelectionMenuListener.class).value())
 				.setPlaceholder("Befehl auswählen...");
 
 		for (Command command : Command.values()) {
@@ -50,7 +58,7 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 	}
 
 	@Override
-	public void process(SelectionMenuEvent event) {
+	public void process(StringSelectInteractionEvent event) {
 		log.trace("Selection menu: admin");
 
 		switch (Command.valueOf(event.getValues().get(0))) {
@@ -59,32 +67,33 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 				break;
 			case GUILD_TEST:
 				final Guild guild = event.getGuild();
-				replyAndRemoveComponents(event, "Guild ID: `" + guild.getId() + "` Channel Name: `" + guild.getName() + "`");
+				replyAndRemoveComponents(event, "Guild ID: `" + guild.getId() + "` Guild Name: `" + guild.getName() + "`");
 				break;
 			case CHANNEL_TEST:
-				final MessageChannel channel = event.getChannel();
+				final Channel channel = event.getChannel();
 				replyAndRemoveComponents(event, "Channel ID: `" + channel.getId() + "` Channel Name: `" + channel.getName() + "`");
 				break;
 			case USER_TEST:
 				final User author = event.getUser();
-				replyAndRemoveComponents(event, "Author ID: `" + author.getId() + "` Author Tag: `" + author.getAsTag() + "`" + "` Author Name: `" + author.getName() + "`");
+				replyAndRemoveComponents(event, "Author ID: `" + author.getId() + "` Author Tag: `" + author.getAsTag() + "` Author Name: `" + author.getName() + "`");
 				break;
 			case CLEAR_CHANNEL:
-				TextChannel textChannel = (TextChannel) event.getChannel();
-				//Explicitly do NOT use the bulk delete method, because it cannot delete messages older than two weeks
-				Arrays.stream(textChannel.getHistory().retrievePast(100).complete().toArray(new Message[0])).forEach(message -> {
-					if (!message.isFromGuild()) {
-						return;
-					}
-					message.delete().queue();
-				});
+				final TextChannel textChannel = event.getChannel().asTextChannel();
+				final List<Message> messages = new ArrayList<>();
+				textChannel.getIterableHistory()
+						.forEachAsync(m -> {
+							if (!m.isFromGuild()) return false;
+							messages.add(m);
+							return true;
+						})
+						.thenRun(() -> textChannel.purgeMessages(messages));
 				replyAndRemoveComponents(event, "Deletion started");
 				break;
 			case INVITE_LIST:
 				replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES_MAP().get(event.getGuild().getIdLong())));
 				break;
 			default:
-				replyAndRemoveComponents(event, Emojis.CHECKBOX.getNotation());
+				replyAndRemoveComponents(event, Emojis.CHECKBOX.getFormatted());
 				break;
 		}
 	}

@@ -3,18 +3,13 @@ package de.webalf.seymour.util;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 import org.atteo.classindex.ClassIndex;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static de.webalf.seymour.util.MentionUtils.isSnowflake;
@@ -45,30 +40,6 @@ public final class SlashCommandUtils {
 	}
 
 	/**
-	 * Returns the {@link CommandPrivilege}s that include allowed roles for the given {@link SlashCommand}
-	 *
-	 * @param guild        to get roles from
-	 * @param slashCommand to get allowed roles for
-	 * @return command privileges with allowed roles
-	 * @see #getAllowedRoles(SlashCommand)
-	 */
-	public static Set<CommandPrivilege> getCommandPrivileges(@NonNull Guild guild, SlashCommand slashCommand) {
-		return getAllowedRoles(slashCommand).stream()
-				.map(discordRole -> CommandPrivilege.enableRole(guild.getRolesByName(discordRole, false).get(0).getId()))
-				.collect(Collectors.toUnmodifiableSet());
-	}
-
-	/**
-	 * Returns all discord roles that are allowed to use the given {@link SlashCommand}
-	 *
-	 * @param command to get allowed roles for
-	 * @return names of allowed discord roles
-	 */
-	private static Set<String> getAllowedRoles(@NonNull SlashCommand command) {
-		return Arrays.stream(command.authorization().getRoles()).collect(Collectors.toUnmodifiableSet());
-	}
-
-	/**
 	 * Returns the string value of the given not null {@link OptionMapping}
 	 *
 	 * @param option to get text from
@@ -89,27 +60,25 @@ public final class SlashCommandUtils {
 	}
 
 	/**
-	 * Returns the integer value of the given not null {@link OptionMapping}
+	 * Returns the {@link GuildMessageChannel} of the given not null {@link OptionMapping}.
+	 * Returns null if the channel can't be accessed (e.g. private thread)
 	 *
-	 * @param option to get int from
-	 * @return int
+	 * @param option to get channel from
+	 * @return guild message channel
 	 */
-	public static int getIntegerOption(@NonNull OptionMapping option) {
-		return Math.toIntExact(option.getAsLong());
-	}
+	public static GuildMessageChannel getChannelOptionAsGuildMessageChannel(@NonNull OptionMapping option) {
+		GuildChannelUnion channel;
+		try {
+			channel = option.getAsChannel();
+		} catch (Exception ignored) {
+			return null;
+		}
 
-	/**
-	 * Returns the id of the {@link User} of the given not null {@link OptionMapping}
-	 *
-	 * @param option to get user id from
-	 * @return user id
-	 */
-	public static long getUserOption(@NonNull OptionMapping option) {
-		return option.getAsUser().getIdLong();
-	}
+		if (!(channel instanceof GuildMessageChannel)) {
+			return null;
+		}
 
-	public static MessageChannel getChannelOption(@NonNull OptionMapping option) {
-		return option.getAsMessageChannel();
+		return channel.asGuildMessageChannel();
 	}
 
 	public static String getMessageIdOption(@NonNull OptionMapping option) {

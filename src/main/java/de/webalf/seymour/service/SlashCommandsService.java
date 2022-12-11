@@ -7,8 +7,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.webalf.seymour.util.CommandClassHelper.getSlashCommand;
-import static de.webalf.seymour.util.PermissionHelper.Authorization.NONE;
-import static de.webalf.seymour.util.SlashCommandUtils.getCommandPrivileges;
 
 /**
  * @author Alf
@@ -38,30 +39,24 @@ public class SlashCommandsService {
 	 */
 	public void updateCommands(@NonNull Guild guild) {
 		log.info("Updating commands for {}...", guild.getName());
-		final List<CommandData> commands = SlashCommandUtils.commandToClassMap.values().stream()
+		final List<CommandData> commandDataList = SlashCommandUtils.commandToClassMap.values().stream()
 				.map(slashCommandClass -> { //For each slash command
 					final SlashCommand slashCommand = getSlashCommand(slashCommandClass);
-					final CommandData commandData = new CommandData(slashCommand.name().toLowerCase(), slashCommand.description()); //Create Command data
+					final SlashCommandData commandData = Commands
+							.slash(slashCommand.name().toLowerCase(), slashCommand.description())
+							.setDefaultPermissions(DefaultMemberPermissions.enabledFor(slashCommand.authorization()));
 					if (slashCommand.optionPosition() >= 0) { //Add options if present
 						commandData.addOptions(getOptions(slashCommandClass, slashCommand.optionPosition()));
 					}
-					if (slashCommand.authorization() != NONE) {
-						commandData.setDefaultEnabled(false);
-					}
 					return commandData;
 				}).collect(Collectors.toUnmodifiableList());
+		log.info("Found {} commands. Starting update...", commandDataList.size());
 
-		log.info("Found {} commands. Starting update...", commands.size());
-		guild.updateCommands().addCommands(commands).queue(updatedCommands -> updatedCommands.forEach(command -> { //Update discord commands
-			final SlashCommand slashCommand = getSlashCommand(SlashCommandUtils.get(command.getName()));
-			if (slashCommand.authorization() != NONE) { //Set authorized roles if needed
-				guild.updateCommandPrivilegesById(command.getIdLong(), getCommandPrivileges(guild, slashCommand)).queue();
-			}
-		}));
-		log.info("Finished command update for {}.", guild.getName());
+		guild.updateCommands().addCommands(commandDataList).queue();
+		log.info("Queued command update for {}.", guild.getName());
 	}
 
-	@SuppressWarnings("unchecked") //The class must implement an interface and thus we can assume the correct return type here
+	@SuppressWarnings("unchecked") //The class must implement an interface, and thus we can assume the correct return type here
 	private List<OptionData> getOptions(Class<?> commandClass, int optionPosition) {
 		try {
 			return (List<OptionData>) commandClass.getMethod("getOptions", int.class).invoke(commandClassHelper.getConstructor(commandClass), optionPosition);

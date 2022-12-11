@@ -5,21 +5,10 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.6.6</version>
+		<!--https://github.com/spring-projects/spring-boot/releases -->
+		<version>2.7.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-
-	<repositories>
-		<repository>
-			<id>central</id>
-			<url>https://repo1.maven.org/maven2/</url>
-		</repository>
-		<repository>
-			<id>dv8tion</id>
-			<name>m2-dv8tion</name>
-			<url>https://m2.dv8tion.net/releases</url>
-		</repository>
-	</repositories>
 
 	<groupId>de.webalf</groupId>
 	<artifactId>seymour</artifactId>
@@ -33,25 +22,27 @@
 
 		<!--Versions-->
 		<java.version>11</java.version>
-		<!--https://github.com/spring-projects/spring-boot/releases -->
-		<springframework.boot.version>2.6.6</springframework.boot.version>
-		<!--https://projectlombok.org/changelog -->
-		<lombok.version>1.18.24</lombok.version>
 		<!--https://github.com/atteo/classindex/releases -->
-		<classindex.version>3.11</classindex.version>
+		<classindex.version>3.13</classindex.version>
 		<!--https://ci.dv8tion.net/job/JDA/changes -->
-		<jda.version>4.4.0_352</jda.version>
+		<jda.version>5.0.0-beta.2</jda.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<!--Exclude vulnerable dependency (version 1.30)-->
+				<exclusion>
+					<groupId>org.yaml</groupId>
+					<artifactId>snakeyaml</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -79,13 +70,16 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-				<version>${springframework.boot.version}</version>
 				<configuration>
 					<executable>true</executable>
 					<excludes>
 						<exclude>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
+						</exclude>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
 				</configuration>
@@ -111,7 +105,7 @@
 						<dependency>
 							<groupId>org.springframework.boot</groupId>
 							<artifactId>spring-boot-configuration-processor</artifactId>
-							<version>${springframework.boot.version}</version>
+							<version>${project.parent.version}</version>
 						</dependency>
 					</annotationProcessorPaths>
 				</configuration>

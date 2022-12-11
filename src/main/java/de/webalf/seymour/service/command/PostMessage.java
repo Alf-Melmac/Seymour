@@ -1,8 +1,10 @@
 package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.model.annotations.SlashCommand;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
@@ -10,7 +12,6 @@ import java.util.List;
 
 import static de.webalf.seymour.util.InteractionUtils.finishedSlashCommandAction;
 import static de.webalf.seymour.util.MessageUtils.sendMessage;
-import static de.webalf.seymour.util.PermissionHelper.Authorization.EVENT_MANAGE;
 import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
 
 /**
@@ -20,7 +21,7 @@ import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
 @Slf4j
 @SlashCommand(name = "postMessage",
 		description = "Lässt den Bot die übergebene Nachricht in den gleichen Kanal versenden.",
-		authorization = EVENT_MANAGE,
+		authorization = Permission.MESSAGE_MANAGE,
 		optionPosition = 0)
 public class PostMessage implements DiscordSlashCommand {
 	private static final String OPTION_MESSAGE = "nachricht";
@@ -29,7 +30,7 @@ public class PostMessage implements DiscordSlashCommand {
 	);
 
 	@Override
-	public void execute(SlashCommandEvent event) {
+	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: postMessage");
 
 		@SuppressWarnings("ConstantConditions") //Required option

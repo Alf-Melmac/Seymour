@@ -3,7 +3,6 @@ package de.webalf.seymour.service.listener;
 import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.service.SlashCommandsService;
 import de.webalf.seymour.service.WelcomeService;
-import de.webalf.seymour.util.RoleUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
@@ -28,7 +27,6 @@ public class GuildReadyListener extends ListenerAdapter {
 		final Guild guild = event.getGuild();
 		inviteService.initialize(guild);
 		welcomeService.initialize(guild);
-		RoleUtils.checkRequiredRoles(guild);
 		slashCommandsService.updateCommands(guild);
 	}
 }
