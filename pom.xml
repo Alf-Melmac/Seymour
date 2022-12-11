@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<!--https://github.com/spring-projects/spring-boot/releases -->
-		<version>2.7.6</version>
+		<version>3.0.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -21,7 +21,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<!--Versions-->
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 		<!--https://github.com/atteo/classindex/releases -->
 		<classindex.version>3.13</classindex.version>
 		<!--https://ci.dv8tion.net/job/JDA/changes -->
@@ -32,7 +32,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 			<exclusions>
-				<!--Exclude vulnerable dependency (version 1.30)-->
+				<!--Exclude vulnerable dependency (version 1.33)-->
 				<exclusion>
 					<groupId>org.yaml</groupId>
 					<artifactId>snakeyaml</artifactId>

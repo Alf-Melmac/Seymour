@@ -6,15 +6,14 @@ import de.webalf.seymour.service.listener.GuildMemberListener;
 import de.webalf.seymour.service.listener.GuildReadyListener;
 import de.webalf.seymour.service.listener.InteractionListener;
 import de.webalf.seymour.util.CommandClassHelper;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
 import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 
