@@ -14,8 +14,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 
-import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
-import static de.webalf.seymour.util.InteractionUtils.replyModal;
+import static de.webalf.seymour.util.InteractionUtils.*;
 import static de.webalf.seymour.util.ModalInteractionUtils.getStringValue;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
@@ -41,8 +40,13 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: postMessage");
 
-		final boolean german = event.getUserLocale().equals(GERMAN);
-		final String modalTitle = german ? "Nachricht senden" : "Post message";
+		final boolean german = isGerman(event);
+		final Modal modal = buildMessageModal(german, german ? "Nachricht senden" : "Post message", getClass().getAnnotation(ModalInteraction.class).value());
+
+		replyModal(event, modal);
+	}
+
+	static Modal buildMessageModal(boolean german, String modalTitle, @NonNull String id) {
 		final String inputLabel = "Text";
 		final String inputPlaceholder = german ? "Zu versendender Text" : "Text to send";
 
@@ -51,11 +55,9 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 				.setRequiredRange(1, Message.MAX_CONTENT_LENGTH)
 				.build();
 
-		final Modal modal = Modal.create(getClass().getAnnotation(ModalInteraction.class).value(), modalTitle)
+		return Modal.create(id, modalTitle)
 				.addActionRow(textInput)
 				.build();
-
-		replyModal(event, modal);
 	}
 
 	@Override

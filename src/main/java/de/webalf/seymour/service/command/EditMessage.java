@@ -1,20 +1,19 @@
 package de.webalf.seymour.service.command;
 
+import de.webalf.seymour.model.annotations.ContextMenu;
 import de.webalf.seymour.model.annotations.DiscordLocalization;
-import de.webalf.seymour.model.annotations.SlashCommand;
-import lombok.NonNull;
+import de.webalf.seymour.model.annotations.ModalInteraction;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
-import java.util.List;
-
-import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
-import static de.webalf.seymour.util.InteractionUtils.reply;
-import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
-import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
+import static de.webalf.seymour.service.command.PostMessage.buildMessageModal;
+import static de.webalf.seymour.util.InteractionUtils.*;
+import static de.webalf.seymour.util.ModalInteractionUtils.getStringValue;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
@@ -22,48 +21,43 @@ import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
  * @since 28.10.2021
  */
 @Slf4j
-@SlashCommand(name = "edit_message",
+@ContextMenu(name = "Edit message",
 		localizedNames = {
-				@DiscordLocalization(locale = GERMAN, name = "nachricht_bearbeiten")
+				@DiscordLocalization(locale = GERMAN, name = "Nachricht bearbeiten")
 		},
-		description = "Replaces the message with the passed ID from the current channel with the passed text.",
-		localizedDescriptions = {
-				@DiscordLocalization(locale = GERMAN, name = "Ersetzt die Nachricht mit der übergebenen ID aus dem aktuellen Kanal mit dem übergebenen Text.")
-		},
-		authorization = Permission.MESSAGE_MANAGE,
-		optionPosition = 0)
-public class EditMessage implements DiscordSlashCommand {
-	private static final String OPTION_MESSAGE_ID = "message-id";
-	private static final String OPTION_MESSAGE = "text";
-	private static final List<List<OptionData>> OPTIONS = List.of(
-			List.of(
-					new OptionData(OptionType.STRING, OPTION_MESSAGE_ID, "ID of the message to be edited.", true)
-							.setNameLocalization(GERMAN, "nachrichten-id")
-							.setDescriptionLocalization(GERMAN, "ID der Nachricht, die bearbeitet werden soll."),
-					new OptionData(OptionType.STRING, OPTION_MESSAGE, "Text to send.", true)
-							.setNameLocalization(GERMAN, "text")
-							.setDescriptionLocalization(GERMAN, "Zu versendender Text."))
-	);
+		type = Command.Type.MESSAGE,
+		authorization = Permission.MESSAGE_MANAGE)
+@ModalInteraction("editMessageModal")
+public class EditMessage implements DiscordMessageContext, DiscordModal {
+	private static final String MESSAGE_CONTENT = "messageContent";
 
 	@Override
-	public void execute(@NonNull SlashCommandInteractionEvent event) {
-		log.trace("Slash command: editMessage");
+	public void perform(MessageContextInteractionEvent event) {
+		log.trace("Message context: editMessage");
 
-		@SuppressWarnings("ConstantConditions") //Required option
-		final String messageId = getMessageIdOption(event.getOption(OPTION_MESSAGE_ID));
-		if (messageId == null) {
-			reply(event, "Das ist keine gültige Nachrichten-ID.");
+		final Message message = event.getTarget();
+		boolean german = isGerman(event);
+		if (!message.getAuthor().equals(event.getJDA().getSelfUser())) {
+			replyNonDeferred(event, german ? "Keine Nachricht von mir." : "Not a message from me.");
 			return;
 		}
 
-		//noinspection ConstantConditions Required option
-		event.getChannel().editMessageById(messageId, getStringOption(event.getOption(OPTION_MESSAGE)))
-				.queue(unused -> finishedCommandAction(event),
-						ignored -> reply(event, "Nachricht nicht bearbeitbar."));
+		final Modal modal = buildMessageModal(german, german ? "Nachricht bearbeiten" : "Edit message", getClass().getAnnotation(ModalInteraction.class).value() + "-" + message.getId());
+
+		replyModal(event, modal);
 	}
 
 	@Override
-	public List<OptionData> getOptions(int optionPosition) {
-		return OPTIONS.get(optionPosition);
+	public void handle(ModalInteractionEvent event) {
+		log.trace("Modal: editMessageModal");
+
+		@SuppressWarnings("ConstantConditions") //Required option
+		final String message = getStringValue(event.getValue(MESSAGE_CONTENT));
+
+		event.getMessageChannel()
+				.editMessageById(event.getModalId().split("-")[1], message)
+				.queue();
+
+		finishedCommandAction(event);
 	}
 }

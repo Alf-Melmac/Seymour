@@ -27,7 +27,7 @@ import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 public class StartVote implements DiscordMessageContext {
 	@Override
 	public void perform(MessageContextInteractionEvent event) {
-		log.trace("Message context interaction: vote");
+		log.trace("Message context: vote");
 		final Message target = event.getTarget();
 		target.addReaction(THUMBS_UP.getEmoji())
 				.queue(unused -> target.addReaction(THUMBS_DOWN.getEmoji()).queue(unused1 ->

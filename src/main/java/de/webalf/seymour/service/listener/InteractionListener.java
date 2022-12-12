@@ -87,7 +87,9 @@ public class InteractionListener extends ListenerAdapter {
 			return;
 		}
 
-		ephemeralDeferReply(event);
+		if (!commandClass.isAnnotationPresent(ModalInteraction.class)) {
+			ephemeralDeferReply(event);
+		}
 
 		try {
 			commandClass.getMethod("perform", MessageContextInteractionEvent.class).invoke(commandClassHelper.getConstructor(commandClass), event);
@@ -98,7 +100,7 @@ public class InteractionListener extends ListenerAdapter {
 
 	@Override
 	public void onModalInteraction(ModalInteractionEvent event) {
-		final String modalId = event.getModalId();
+		final String modalId = event.getModalId().split("-")[0];
 		log.debug("Received modal interaction event: {} from {}", modalId, event.getUser().getId());
 
 		final Class<?> aClass = ModalInteractionUtils.get(modalId);

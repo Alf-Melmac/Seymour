@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
@@ -17,6 +18,7 @@ import java.util.function.Consumer;
 
 import static de.webalf.seymour.util.MessageUtils.doNothing;
 import static net.dv8tion.jda.api.EmbedBuilder.ZERO_WIDTH_SPACE;
+import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
  * Util class to work with {@link Interaction}s
@@ -50,6 +52,22 @@ public final class InteractionUtils {
 		interaction.getHook().sendMessage(reply).queue(success, fail -> log.warn("Failed to send interaction reply", fail));
 	}
 
+	/**
+	 * Replies to the given non-deferred interaction with the given reply
+	 *
+	 * @param interaction to reply to
+	 * @param reply       reply text
+	 */
+	public static void replyNonDeferred(@NonNull IReplyCallback interaction, @NonNull String reply) {
+		interaction.reply(reply).setEphemeral(true).queue();
+	}
+
+	/**
+	 * Replies to the given interaction with the given modal
+	 *
+	 * @param interaction to reply to
+	 * @param modal       reply modal
+	 */
 	public static void replyModal(@NonNull GenericCommandInteractionEvent interaction, @NonNull Modal modal) {
 		interaction.replyModal(modal).queue();
 	}
@@ -91,5 +109,15 @@ public final class InteractionUtils {
 	 */
 	public static void failedSlashCommandAction(@NonNull IDeferrableCallback interaction, String message) {
 		reply(interaction, Emojis.CROSS_MARK.getFormatted() + " " + message);
+	}
+
+	/**
+	 * Checks if the event user has the {@link net.dv8tion.jda.api.interactions.DiscordLocale#GERMAN} locale set.
+	 *
+	 * @param event to check user locale for
+	 * @return if german configured
+	 */
+	public static boolean isGerman(@NonNull GenericInteractionCreateEvent event) {
+		return event.getUserLocale().equals(GERMAN);
 	}
 }
