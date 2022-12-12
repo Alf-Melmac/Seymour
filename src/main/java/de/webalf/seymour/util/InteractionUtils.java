@@ -5,11 +5,13 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import java.util.function.Consumer;
 
@@ -46,6 +48,10 @@ public final class InteractionUtils {
 
 	private static void reply(@NonNull IDeferrableCallback interaction, @NonNull String reply, Consumer<Message> success) {
 		interaction.getHook().sendMessage(reply).queue(success, fail -> log.warn("Failed to send interaction reply", fail));
+	}
+
+	public static void replyModal(@NonNull GenericCommandInteractionEvent interaction, @NonNull Modal modal) {
+		interaction.replyModal(modal).queue();
 	}
 
 	/**

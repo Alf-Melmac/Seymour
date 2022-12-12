@@ -24,7 +24,7 @@ import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 		},
 		type = Command.Type.MESSAGE,
 		authorization = Permission.MESSAGE_ADD_REACTION)
-public class StartVote implements DiscordMessageContextMenu {
+public class StartVote implements DiscordMessageContext {
 	@Override
 	public void perform(MessageContextInteractionEvent event) {
 		log.trace("Message context interaction: vote");

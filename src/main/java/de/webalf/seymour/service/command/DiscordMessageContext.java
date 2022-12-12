@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
  * @author Alf
  * @since 11.12.2022
  */
-public interface DiscordMessageContextMenu {
+public interface DiscordMessageContext {
 	@SuppressWarnings("unused") //Used by InteractionListener#onMessageContextInteraction(MessageContextInteractionEvent)
 	void perform(MessageContextInteractionEvent event);
 }

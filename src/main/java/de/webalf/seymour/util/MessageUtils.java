@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.interactions.commands.CommandInteraction;
+import net.dv8tion.jda.api.interactions.Interaction;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
@@ -37,7 +37,7 @@ public final class MessageUtils {
 	 * @param interaction on which channel text should be sent
 	 * @param message     to send
 	 */
-	public static void sendMessage(@NonNull CommandInteraction interaction, @NotNull String message) {
+	public static void sendMessage(@NonNull Interaction interaction, @NotNull String message) {
 		sendMessage(interaction.getMessageChannel(), message);
 	}
 

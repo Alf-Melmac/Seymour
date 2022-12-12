@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
  * @author Alf
  * @since 01.08.2021
  */
-public interface DiscordSelectionMenu {
+public interface DiscordStringSelect {
 	@SuppressWarnings("unused") //Used by InteractionListener#onStringSelectInteraction(StringSelectInteractionEvent)
 	void process(StringSelectInteractionEvent event);
 }

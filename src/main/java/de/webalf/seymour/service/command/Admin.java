@@ -1,10 +1,10 @@
 package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.constant.Emojis;
-import de.webalf.seymour.model.annotations.SelectionMenuListener;
 import de.webalf.seymour.model.annotations.SlashCommand;
+import de.webalf.seymour.model.annotations.StringSelectInteraction;
 import de.webalf.seymour.service.InviteService;
-import de.webalf.seymour.util.SelectionMenuUtils;
+import de.webalf.seymour.util.StringSelectUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
@@ -32,8 +32,8 @@ import static de.webalf.seymour.util.StringUtils.invitesToString;
 @SlashCommand(name = "admin",
 		description = "Admin Utilities",
 		authorization = Permission.ADMINISTRATOR)
-@SelectionMenuListener("admin")
-public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
+@StringSelectInteraction("admin")
+public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 	private enum Command {
 		PING,
 		GUILD_TEST,
@@ -47,11 +47,11 @@ public class Admin implements DiscordSlashCommand, DiscordSelectionMenu {
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: admin");
 
-		final StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create(getClass().getAnnotation(SelectionMenuListener.class).value())
+		final StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create(getClass().getAnnotation(StringSelectInteraction.class).value())
 				.setPlaceholder("Befehl auswählen...");
 
 		for (Command command : Command.values()) {
-			selectionMenuBuilder.addOption(SelectionMenuUtils.buildSelectionLabel(command.name()), command.name());
+			selectionMenuBuilder.addOption(StringSelectUtils.buildSelectLabel(command.name()), command.name());
 		}
 
 		addSelectionMenu(event, selectionMenuBuilder.build());

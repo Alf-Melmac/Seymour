@@ -1,19 +1,22 @@
 package de.webalf.seymour.service.command;
 
 import de.webalf.seymour.model.annotations.DiscordLocalization;
+import de.webalf.seymour.model.annotations.ModalInteraction;
 import de.webalf.seymour.model.annotations.SlashCommand;
+import de.webalf.seymour.util.MessageUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-
-import java.util.List;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 
 import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
-import static de.webalf.seymour.util.MessageUtils.sendMessage;
-import static de.webalf.seymour.util.SlashCommandUtils.getStringOption;
+import static de.webalf.seymour.util.InteractionUtils.replyModal;
+import static de.webalf.seymour.util.ModalInteractionUtils.getStringValue;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
@@ -25,34 +28,45 @@ import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 		localizedNames = {
 				@DiscordLocalization(locale = GERMAN, name = "nachricht_senden")
 		},
-		description = "Makes the bot send the passed message to the same channel.",
+		description = "Makes the bot send a message to the same channel.",
 		localizedDescriptions = {
-				@DiscordLocalization(locale = GERMAN, name = "Lässt den Bot die übergebene Nachricht in den gleichen Kanal versenden.")
+				@DiscordLocalization(locale = GERMAN, name = "Lässt den Bot eine Nachricht an denselben Kanal senden.")
 		},
-		authorization = Permission.MESSAGE_MANAGE,
-		optionPosition = 0)
-public class PostMessage implements DiscordSlashCommand {
-	private static final String OPTION_MESSAGE = "text";
-	private static final List<List<OptionData>> OPTIONS = List.of(
-			List.of(new OptionData(OptionType.STRING, OPTION_MESSAGE, "Text to send.", true)
-					.setNameLocalization(GERMAN, "text")
-					.setDescriptionLocalization(GERMAN, "Zu versendender Text."))
-	);
+		authorization = Permission.MESSAGE_MANAGE)
+@ModalInteraction("postMessageModal")
+public class PostMessage implements DiscordSlashCommand, DiscordModal {
+	private static final String MESSAGE_CONTENT = "messageContent";
 
 	@Override
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: postMessage");
 
-		@SuppressWarnings("ConstantConditions") //Required option
-		final String message = getStringOption(event.getOption(OPTION_MESSAGE));
+		final boolean german = event.getUserLocale().equals(GERMAN);
+		final String modalTitle = german ? "Nachricht senden" : "Post message";
+		final String inputLabel = "Text";
+		final String inputPlaceholder = german ? "Zu versendender Text" : "Text to send";
 
-		sendMessage(event, message);
+		final TextInput textInput = TextInput.create(MESSAGE_CONTENT, inputLabel, TextInputStyle.PARAGRAPH)
+				.setPlaceholder(inputPlaceholder)
+				.setRequiredRange(1, Message.MAX_CONTENT_LENGTH)
+				.build();
 
-		finishedCommandAction(event);
+		final Modal modal = Modal.create(getClass().getAnnotation(ModalInteraction.class).value(), modalTitle)
+				.addActionRow(textInput)
+				.build();
+
+		replyModal(event, modal);
 	}
 
 	@Override
-	public List<OptionData> getOptions(int optionPosition) {
-		return OPTIONS.get(optionPosition);
+	public void handle(ModalInteractionEvent event) {
+		log.trace("Modal: postMessageModal");
+
+		@SuppressWarnings("ConstantConditions") //Required option
+		final String message = getStringValue(event.getValue(MESSAGE_CONTENT));
+
+		MessageUtils.sendMessage(event, message);
+
+		finishedCommandAction(event);
 	}
 }

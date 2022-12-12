@@ -1,12 +1,11 @@
 package de.webalf.seymour.service.listener;
 
-import de.webalf.seymour.util.CommandClassHelper;
-import de.webalf.seymour.util.ContextMenuUtils;
-import de.webalf.seymour.util.SelectionMenuUtils;
-import de.webalf.seymour.util.SlashCommandUtils;
+import de.webalf.seymour.model.annotations.ModalInteraction;
+import de.webalf.seymour.util.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -38,7 +37,9 @@ public class InteractionListener extends ListenerAdapter {
 			return;
 		}
 
-		ephemeralDeferReply(event);
+		if (!commandClass.isAnnotationPresent(ModalInteraction.class)) {
+			ephemeralDeferReply(event);
+		}
 
 		try {
 			commandClass.getMethod("execute", SlashCommandInteractionEvent.class).invoke(commandClassHelper.getConstructor(commandClass), event);
@@ -47,9 +48,9 @@ public class InteractionListener extends ListenerAdapter {
 		}
 	}
 
-	private void unknownException(GenericCommandInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
-		log.error("Failed to execute slash command {} with options {}", commandClass.getName(), event.getOptions(), e);
-		reply(event, "Tja, da ist wohl was schief gelaufen.");
+	private void unknownException(@NonNull GenericCommandInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
+		log.error("Failed to execute command interaction {} with options {}", commandClass.getName(), event.getOptions(), e);
+		reply(event, "Sorry. Error A.");
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class InteractionListener extends ListenerAdapter {
 		final String componentId = event.getComponentId();
 		log.debug("Received selection menu event: {} from {}", componentId, event.getUser().getId());
 
-		final Class<?> aClass = SelectionMenuUtils.get(componentId);
+		final Class<?> aClass = StringSelectUtils.get(componentId);
 		if (aClass == null) {
 			log.error("Received not known selection menu: {}", componentId);
 			return;
@@ -70,9 +71,9 @@ public class InteractionListener extends ListenerAdapter {
 		}
 	}
 
-	private void unknownException(StringSelectInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
+	private void unknownException(@NonNull StringSelectInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
 		log.error("Failed to process string selection menu selection {} with id {}", commandClass.getName(), event.getComponentId(), e);
-		replyAndRemoveComponents(event, "Tja, da ist wohl was schief gelaufen.");
+		replyAndRemoveComponents(event, "Sorry. Error B.");
 	}
 
 	@Override
@@ -93,5 +94,30 @@ public class InteractionListener extends ListenerAdapter {
 		} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
 			unknownException(event, commandClass, e);
 		}
+	}
+
+	@Override
+	public void onModalInteraction(ModalInteractionEvent event) {
+		final String modalId = event.getModalId();
+		log.debug("Received modal interaction event: {} from {}", modalId, event.getUser().getId());
+
+		final Class<?> aClass = ModalInteractionUtils.get(modalId);
+		if (aClass == null) {
+			log.error("Received not known modal: {}", modalId);
+			return;
+		}
+
+		ephemeralDeferReply(event);
+
+		try {
+			aClass.getMethod("handle", ModalInteractionEvent.class).invoke(commandClassHelper.getConstructor(aClass), event);
+		} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+			unknownException(event, aClass, e);
+		}
+	}
+
+	private void unknownException(@NonNull ModalInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
+		log.error("Failed to execute modal interaction {} with values {}", commandClass.getName(), event.getValues(), e);
+		reply(event, "Sorry. Error C.");
 	}
 }
