@@ -17,8 +17,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import static de.webalf.seymour.util.InteractionUtils.failedSlashCommandAction;
-import static de.webalf.seymour.util.InteractionUtils.reply;
+import static de.webalf.seymour.util.InteractionUtils.*;
 import static de.webalf.seymour.util.SlashCommandUtils.getChannelOptionAsGuildMessageChannel;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
@@ -53,11 +52,12 @@ public class Copy implements DiscordSlashCommand {
 	@Override
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: copy");
+		final boolean isGerman = isGerman(event);
 
 		@SuppressWarnings("ConstantConditions") //Required option
 		final String messageId = getMessageIdOption(event.getOption(OPTION_MESSAGE_ID));
 		if (messageId == null) {
-			reply(event, "Das ist keine gültige Nachrichten-ID.");
+			reply(event, isGerman ? "Keine gültige Nachrichten-ID angegeben." : "Not a valid message id provided.");
 			return;
 		}
 
@@ -67,11 +67,12 @@ public class Copy implements DiscordSlashCommand {
 					@SuppressWarnings("ConstantConditions") //Required option
 					final GuildMessageChannel channelOption = getChannelOptionAsGuildMessageChannel(optionMapping);
 					if (channelOption == null) {
-						failedSlashCommandAction(event, "Der Kanal <#" + optionMapping.getAsString() + "> kann nicht erreicht werden.");
+						failedSlashCommandAction(event, isGerman ? "Der Kanal <#" + optionMapping.getAsString() + "> kann nicht erreicht werden." :
+								"Channel <#" + optionMapping.getAsString() + "> can't be accessed.");
 						return;
 					}
 					if (!channelOption.canTalk()) {
-						failedSlashCommandAction(event, "Keine Schreibrecht im Zielkanal.");
+						failedSlashCommandAction(event, isGerman ? "Fehlende Schreibrechte im Zielkanal." : "Missing write permission in the target channel.");
 						return;
 					}
 
@@ -89,8 +90,8 @@ public class Copy implements DiscordSlashCommand {
 							.build();
 
 					channelOption.sendMessage(messageCreateData)
-							.queue(sendMessage -> reply(event, "Kopiert nach " + sendMessage.getChannel().getAsMention()));
-				}, ignored -> failedSlashCommandAction(event, "Nachricht nicht gefunden."));
+							.queue(sendMessage -> reply(event, isGerman ? "Kopiert nach " : "Copied to " + sendMessage.getChannel().getAsMention()));
+				}, ignored -> failedSlashCommandAction(event, isGerman ? "Nachricht nicht gefunden." : "Message not found."));
 	}
 
 	@Override

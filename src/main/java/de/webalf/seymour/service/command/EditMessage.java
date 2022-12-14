@@ -34,15 +34,15 @@ public class EditMessage implements DiscordMessageContext, DiscordModal {
 	@Override
 	public void perform(MessageContextInteractionEvent event) {
 		log.trace("Message context: editMessage");
+		final boolean isGerman = isGerman(event);
 
 		final Message message = event.getTarget();
-		boolean german = isGerman(event);
 		if (!message.getAuthor().equals(event.getJDA().getSelfUser())) {
-			replyNonDeferred(event, german ? "Keine Nachricht von mir." : "Not a message from me.");
+			replyNonDeferred(event, isGerman ? "Keine Nachricht von mir." : "Not a message from me.");
 			return;
 		}
 
-		final Modal modal = buildMessageModal(german, german ? "Nachricht bearbeiten" : "Edit message", getClass().getAnnotation(ModalInteraction.class).value() + "-" + message.getId());
+		final Modal modal = buildMessageModal(isGerman, isGerman ? "Nachricht bearbeiten" : "Edit message", getClass().getAnnotation(ModalInteraction.class).value() + "-" + message.getId());
 
 		replyModal(event, modal);
 	}

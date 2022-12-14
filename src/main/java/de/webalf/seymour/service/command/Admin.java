@@ -20,8 +20,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.webalf.seymour.util.InteractionUtils.addSelectionMenu;
-import static de.webalf.seymour.util.InteractionUtils.replyAndRemoveComponents;
+import static de.webalf.seymour.util.InteractionUtils.*;
 import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
@@ -46,9 +45,10 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 	@Override
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: admin");
+		final boolean isGerman = isGerman(event);
 
 		final StringSelectMenu.Builder selectionMenuBuilder = StringSelectMenu.create(getClass().getAnnotation(StringSelectInteraction.class).value())
-				.setPlaceholder("Befehl auswählen...");
+				.setPlaceholder(isGerman ? "Befehl auswählen..." : "Select command...");
 
 		for (Command command : Command.values()) {
 			selectionMenuBuilder.addOption(StringSelectUtils.buildSelectLabel(command.name()), command.name());

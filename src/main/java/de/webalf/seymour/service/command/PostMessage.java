@@ -39,9 +39,9 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 	@Override
 	public void execute(@NonNull SlashCommandInteractionEvent event) {
 		log.trace("Slash command: postMessage");
+		final boolean isGerman = isGerman(event);
 
-		final boolean german = isGerman(event);
-		final Modal modal = buildMessageModal(german, german ? "Nachricht senden" : "Post message", getClass().getAnnotation(ModalInteraction.class).value());
+		final Modal modal = buildMessageModal(isGerman, isGerman ? "Nachricht senden" : "Post message", getClass().getAnnotation(ModalInteraction.class).value());
 
 		replyModal(event, modal);
 	}
