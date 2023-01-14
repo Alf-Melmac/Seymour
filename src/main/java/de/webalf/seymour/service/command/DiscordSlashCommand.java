@@ -21,7 +21,7 @@ public interface DiscordSlashCommand {
 	 *
 	 * @return list of every option of all slash commands
 	 */
-	@SuppressWarnings("unused") //Used by SlashCommandsService#getOptions(Class, int)
+	@SuppressWarnings("unused") //Used by CommandsService#getOptions(Class, int)
 	default List<OptionData> getOptions(int optionPosition) {
 		return Collections.emptyList();
 	}
