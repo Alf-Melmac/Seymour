@@ -90,7 +90,7 @@ public class Copy implements DiscordSlashCommand {
 							.build();
 
 					channelOption.sendMessage(messageCreateData)
-							.queue(sendMessage -> reply(event, isGerman ? "Kopiert nach " : "Copied to " + sendMessage.getChannel().getAsMention()));
+							.queue(sendMessage -> reply(event, (isGerman ? "Kopiert nach " : "Copied to ") + sendMessage.getChannel().getAsMention()));
 				}, ignored -> failedSlashCommandAction(event, isGerman ? "Nachricht nicht gefunden." : "Message not found."));
 	}
 

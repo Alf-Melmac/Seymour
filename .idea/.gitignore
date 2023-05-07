@@ -10,8 +10,11 @@
 
 /libraries
 
+misc.xml
+
 #Plugins
 sonarlint-state.xml
 sonarlint/
+sonarlint.xml
 discord.xml
 jpa-buddy.xml

@@ -6,6 +6,7 @@
       <item index="1" class="java.lang.String" itemvalue="de.webalf.seymour.model.annotations.SlashCommand" />
     </list>
   </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="MavenCompilerTasksManager">
     <option name="beforeRebuildTask">
       <set>

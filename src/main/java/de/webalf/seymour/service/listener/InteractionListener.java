@@ -77,7 +77,7 @@ public class InteractionListener extends ListenerAdapter {
 	}
 
 	@Override
-	public void onMessageContextInteraction(MessageContextInteractionEvent event) {
+	public void onMessageContextInteraction(@NonNull MessageContextInteractionEvent event) {
 		final String commandName = event.getName();
 		log.debug("Received message context interaction event: {} from {}", commandName, event.getUser().getId());
 
@@ -99,7 +99,7 @@ public class InteractionListener extends ListenerAdapter {
 	}
 
 	@Override
-	public void onModalInteraction(ModalInteractionEvent event) {
+	public void onModalInteraction(@NonNull ModalInteractionEvent event) {
 		final String modalId = event.getModalId().split("-")[0];
 		log.debug("Received modal interaction event: {} from {}", modalId, event.getUser().getId());
 
