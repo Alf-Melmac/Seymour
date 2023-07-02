@@ -58,6 +58,6 @@ public class EditMessage implements DiscordMessageContext, DiscordModal {
 				.editMessageById(event.getModalId().split("-")[1], message)
 				.queue();
 
-		finishedCommandAction(event);
+		finishedInteraction(event);
 	}
 }

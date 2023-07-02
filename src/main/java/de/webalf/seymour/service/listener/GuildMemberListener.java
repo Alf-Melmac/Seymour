@@ -3,7 +3,6 @@ package de.webalf.seymour.service.listener;
 import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.service.WelcomeService;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -17,15 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
  *     <li>
  *         Intents
  *         <ul>
- *             <li>{@link GatewayIntent#GUILD_MEMBERS}</li>
- *             <li>{@link GatewayIntent#GUILD_INVITES}</li>
+ *             <li>{@link GatewayIntent#GUILD_MEMBERS} to retrievers members that joined a guild</li>
  *         </ul>
  *     </li>
  *     <li>
  *         Permissions
  *         <ul>
- *             <li>{@link Permission#MANAGE_CHANNEL} in every channel</li>
- *             <li>{@link Permission#MANAGE_SERVER} to retrieve invites</li>
+ *             -
  *         </ul>
  *     </li>
  * </ul>

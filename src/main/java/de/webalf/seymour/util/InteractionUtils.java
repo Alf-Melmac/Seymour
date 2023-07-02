@@ -97,8 +97,8 @@ public final class InteractionUtils {
 	 *
 	 * @param interaction finished interaction
 	 */
-	public static void finishedCommandAction(@NonNull IDeferrableCallback interaction) {
-		reply(interaction, Emojis.CHECKBOX.getFormatted());
+	public static void finishedInteraction(@NonNull IDeferrableCallback interaction) {
+		interaction.getHook().deleteOriginal().queue();
 	}
 
 	/**

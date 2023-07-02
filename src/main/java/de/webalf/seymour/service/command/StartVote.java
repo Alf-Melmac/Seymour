@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 
 import static de.webalf.seymour.constant.Emojis.THUMBS_DOWN;
 import static de.webalf.seymour.constant.Emojis.THUMBS_UP;
-import static de.webalf.seymour.util.InteractionUtils.finishedCommandAction;
+import static de.webalf.seymour.util.InteractionUtils.finishedInteraction;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
@@ -31,6 +31,6 @@ public class StartVote implements DiscordMessageContext {
 		final Message target = event.getTarget();
 		target.addReaction(THUMBS_UP.getEmoji())
 				.queue(unused -> target.addReaction(THUMBS_DOWN.getEmoji()).queue(unused1 ->
-						finishedCommandAction(event)));
+						finishedInteraction(event)));
 	}
 }

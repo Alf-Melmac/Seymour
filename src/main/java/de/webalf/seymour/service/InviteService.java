@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.VanityInvite;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -37,8 +38,8 @@ public class InviteService {
 	private final DiscordProperties discordProperties;
 
 	@Getter
-	private static final Map<Long, List<Invite>> GUILD_INVITES_MAP = new HashMap<>();
-	private static Integer vanityUrlUses = null;
+	private static final Map<Long, List<Invite>> GUILD_INVITES = new HashMap<>();
+	private static final Map<Long, Integer> VANITY_URL_USES = new HashMap<>();
 
 	/**
 	 * Fills the invite cache for the given guild
@@ -46,18 +47,20 @@ public class InviteService {
 	 * @param guild to save invites for
 	 */
 	private static void fillInvitesMap(@NonNull Guild guild) {
-		guild.retrieveInvites().queue(invites -> GUILD_INVITES_MAP.put(guild.getIdLong(), new ArrayList<>(invites)));
+		guild.retrieveInvites().queue(invites -> GUILD_INVITES.put(guild.getIdLong(), new ArrayList<>(invites)));
 	}
 
 	private static void setVanityUrlUses(@NonNull Guild guild) {
 		if (guild.getVanityCode() != null) {
-			guild.retrieveVanityInvite().queue(vanityInvite -> vanityUrlUses = vanityInvite.getUses());
+			guild.retrieveVanityInvite().queue(vanityInvite -> VANITY_URL_USES.put(guild.getIdLong(), vanityInvite.getUses()));
 		}
 	}
 
 	/**
 	 * @see #fillInvitesMap(Guild)
+	 * @see #setVanityUrlUses(Guild)
 	 */
+	@Async
 	public void initialize(@NonNull Guild guild) {
 		log.info("Initializing invite cache for {}", guild.getName());
 		final TextChannel modLogChannel = getModLogChannel(guild);
@@ -74,7 +77,7 @@ public class InviteService {
 	}
 
 	private static boolean invalidGuild(long guildId) {
-		final boolean validGuild = GUILD_INVITES_MAP.containsKey(guildId);
+		final boolean validGuild = GUILD_INVITES.containsKey(guildId);
 		if (!validGuild) log.info("Invalid guild {}. Missing modLog configuration?", guildId);
 		return !validGuild;
 	}
@@ -91,9 +94,9 @@ public class InviteService {
 		}
 		log.trace("Detected new invite in {}", guildId);
 
-		final List<Invite> invites = new ArrayList<>(GUILD_INVITES_MAP.get(guildId)); //Just to be sure it's modifiable
+		final List<Invite> invites = new ArrayList<>(GUILD_INVITES.get(guildId)); //Just to be sure it's modifiable
 		invites.add(invite);
-		GUILD_INVITES_MAP.put(guildId, invites);
+		GUILD_INVITES.put(guildId, invites);
 	}
 
 	/**
@@ -126,7 +129,7 @@ public class InviteService {
 			final TextChannel modLogChannel = getModLogChannel(guild);
 			if (modLogChannel == null) return;
 
-			final List<Invite> oldInvites = GUILD_INVITES_MAP.get(guild.getIdLong());
+			final List<Invite> oldInvites = GUILD_INVITES.get(guild.getIdLong());
 
 			boolean found = false;
 			if (invites.size() == oldInvites.size()) {
@@ -150,17 +153,18 @@ public class InviteService {
 			if (!found) {
 				checkForVanityUrl(guild, member, invites, oldInvites, modLogChannel);
 			}
-			GUILD_INVITES_MAP.put(guild.getIdLong(), new ArrayList<>(invites));
+			GUILD_INVITES.put(guild.getIdLong(), new ArrayList<>(invites));
 		});
 	}
 
 	private static void checkForVanityUrl(@NotNull Guild guild, Member member, List<Invite> invites, List<Invite> oldInvites, TextChannel modLogChannel) {
+		final Integer vanityUrlUses = VANITY_URL_USES.get(guild.getIdLong());
 		if (vanityUrlUses != null) {
 			guild.retrieveVanityInvite()
 					.queue(vanityInvite -> {
 						if (vanityUrlUses != vanityInvite.getUses()) {
 							sendLogEmbed(member, modLogChannel, vanityInvite);
-							vanityUrlUses = vanityInvite.getUses();
+							VANITY_URL_USES.put(guild.getIdLong(), vanityInvite.getUses());
 						} else {
 							sendErrorEmbed(member, modLogChannel, oldInvites, invites, vanityUrlUses, vanityInvite);
 						}
@@ -224,5 +228,12 @@ public class InviteService {
 	private static EmbedBuilder buildErrorEmbed(Member member, List<Invite> oldInvites, List<Invite> invites, @NonNull Throwable fail) {
 		return embedBuilder(buildErrorEmbed(member, oldInvites, invites),
 				new OneLineField("Error while getting vanity url", fail.getMessage()));
+	}
+
+	@Async
+	public void deinitialize(@NonNull Guild guild) {
+		log.info("Deinitializing invite cache for {}", guild.getName());
+		GUILD_INVITES.remove(guild.getIdLong());
+		VANITY_URL_USES.remove(guild.getIdLong());
 	}
 }

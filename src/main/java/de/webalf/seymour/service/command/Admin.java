@@ -65,6 +65,7 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 			case PING -> replyAndRemoveComponents(event, "Pong");
 			case GUILD_TEST -> {
 				final Guild guild = event.getGuild();
+				//noinspection DataFlowIssue Guild only command
 				replyAndRemoveComponents(event, "Guild ID: `" + guild.getId() + "` Guild Name: `" + guild.getName() + "`");
 			}
 			case CHANNEL_TEST -> {
@@ -73,7 +74,7 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 			}
 			case USER_TEST -> {
 				final User author = event.getUser();
-				replyAndRemoveComponents(event, "Author ID: `" + author.getId() + "` Author Tag: `" + author.getAsTag() + "` Author Name: `" + author.getName() + "`");
+				replyAndRemoveComponents(event, "Author ID: `" + author.getId() + "` Author Name: `" + author.getName() + "`");
 			}
 			case CLEAR_CHANNEL -> {
 				final TextChannel textChannel = event.getChannel().asTextChannel();
@@ -88,7 +89,8 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 				replyAndRemoveComponents(event, "Deletion started");
 			}
 			case INVITE_LIST ->
-					replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES_MAP().get(event.getGuild().getIdLong())));
+				//noinspection DataFlowIssue Guild only command
+					replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES().get(event.getGuild().getIdLong())));
 			default -> replyAndRemoveComponents(event, Emojis.CHECKBOX.getFormatted());
 		}
 	}

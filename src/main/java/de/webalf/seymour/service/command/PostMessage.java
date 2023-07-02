@@ -69,6 +69,6 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 
 		MessageUtils.sendMessage(event, message);
 
-		finishedCommandAction(event);
+		finishedInteraction(event);
 	}
 }

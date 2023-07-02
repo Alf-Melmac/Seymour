@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -50,6 +51,7 @@ public class WelcomeService {
 	 *
 	 * @param guild to initialize
 	 */
+	@Async
 	public void initialize(@NonNull Guild guild) {
 		log.info("Initializing welcome messages for {}", guild.getName());
 		if (!hasWelcomeChannelConfig(guild)) {
@@ -118,5 +120,11 @@ public class WelcomeService {
 	 */
 	private TextChannel getWelcomeTextChannel(@NonNull DiscordProperties.WelcomeChannel welcomeChannel, @NonNull Guild guild) {
 		return ChannelUtils.getChannel(welcomeChannel.getId(), guild, "welcomeChannel");
+	}
+
+	@Async
+	public void deinitialize(@NonNull Guild guild) {
+		log.info("Deinitializing welcome messages for {}", guild.getName());
+		GUILD_SET.remove(guild.getIdLong());
 	}
 }

@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  *     <li>
  *         Intents
  *         <ul>
- *             <li>{@link GatewayIntent#GUILD_MEMBERS}</li>
  *             <li>{@link GatewayIntent#GUILD_INVITES}</li>
  *         </ul>
  *     </li>
@@ -24,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
  *         Permissions
  *         <ul>
  *             <li>{@link Permission#MANAGE_CHANNEL} in every channel</li>
- *             <li>{@link Permission#MANAGE_SERVER} to retrieve invites</li>
  *         </ul>
  *     </li>
  * </ul>
