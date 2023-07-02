@@ -58,7 +58,7 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 	}
 
 	@Override
-	public void process(StringSelectInteractionEvent event) {
+	public void process(@NonNull StringSelectInteractionEvent event) {
 		log.trace("Selection menu: admin");
 
 		switch (Command.valueOf(event.getValues().get(0))) {

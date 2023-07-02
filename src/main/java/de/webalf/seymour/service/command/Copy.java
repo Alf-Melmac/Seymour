@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -17,12 +18,30 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static de.webalf.seymour.util.ChannelUtils.canViewChannel;
 import static de.webalf.seymour.util.InteractionUtils.*;
 import static de.webalf.seymour.util.SlashCommandUtils.getChannelOptionAsGuildMessageChannel;
 import static de.webalf.seymour.util.SlashCommandUtils.getMessageIdOption;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
+ * This requires the following permissions to copy messages
+ * <ul>
+ *     <li>
+ *         Start channel
+ *         <ul>
+ *             <li>{@link Permission#VIEW_CHANNEL}</li>
+ *         </ul>
+ *     </li>
+ *     <li>
+ *         Target channel
+ *         <ul>
+ *             <li>{@link Permission#VIEW_CHANNEL}</li>
+ *             <li>{@link Permission#MESSAGE_SEND}</li>
+ *         </ul>
+ *     </li>
+ * </ul>
+ *
  * @author Alf
  * @since 17.09.2021
  */
@@ -61,18 +80,24 @@ public class Copy implements DiscordSlashCommand {
 			return;
 		}
 
-		event.getChannel().retrieveMessageById(messageId)
+		final MessageChannelUnion channel = event.getChannel();
+		//noinspection DataFlowIssue Guild only command
+		if (!canViewChannel(event.getGuild().getSelfMember(), channel.asGuildMessageChannel())) {
+			failedInteraction(event, isGerman ? "Diesen Kanal darf ich nicht sehen." : "I am not allowed to see this channel.");
+			return;
+		}
+		channel.retrieveMessageById(messageId)
 				.queue(message -> {
 					final OptionMapping optionMapping = event.getOption(OPTION_NEW_CHANNEL);
 					@SuppressWarnings("ConstantConditions") //Required option
 					final GuildMessageChannel channelOption = getChannelOptionAsGuildMessageChannel(optionMapping);
 					if (channelOption == null) {
-						failedSlashCommandAction(event, isGerman ? "Der Kanal <#" + optionMapping.getAsString() + "> kann nicht erreicht werden." :
+						failedInteraction(event, isGerman ? "Der Kanal <#" + optionMapping.getAsString() + "> kann nicht erreicht werden." :
 								"Channel <#" + optionMapping.getAsString() + "> can't be accessed.");
 						return;
 					}
 					if (!channelOption.canTalk()) {
-						failedSlashCommandAction(event, isGerman ? "Fehlende Schreibrechte im Zielkanal." : "Missing write permission in the target channel.");
+						failedInteraction(event, isGerman ? "Fehlende Schreibrechte im Zielkanal." : "Missing write permission in the target channel.");
 						return;
 					}
 
@@ -91,7 +116,7 @@ public class Copy implements DiscordSlashCommand {
 
 					channelOption.sendMessage(messageCreateData)
 							.queue(sendMessage -> reply(event, (isGerman ? "Kopiert nach " : "Copied to ") + sendMessage.getChannel().getAsMention()));
-				}, ignored -> failedSlashCommandAction(event, isGerman ? "Nachricht nicht gefunden." : "Message not found."));
+				}, ignored -> failedInteraction(event, isGerman ? "Nachricht nicht gefunden." : "Message not found."));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package de.webalf.seymour.service.command;
 
+import lombok.NonNull;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 
 /**
@@ -8,5 +9,5 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
  */
 public interface DiscordModal {
 	@SuppressWarnings("unused") //Used by InteractionListener#onModalInteraction(ModalInteractionEvent)
-	void handle(ModalInteractionEvent event);
+	void handle(@NonNull ModalInteractionEvent event);
 }

@@ -1,5 +1,6 @@
 package de.webalf.seymour.service.command;
 
+import lombok.NonNull;
 import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent;
 
 /**
@@ -8,5 +9,5 @@ import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionE
  */
 public interface DiscordMessageContext {
 	@SuppressWarnings("unused") //Used by InteractionListener#onMessageContextInteraction(MessageContextInteractionEvent)
-	void perform(MessageContextInteractionEvent event);
+	void perform(@NonNull MessageContextInteractionEvent event);
 }

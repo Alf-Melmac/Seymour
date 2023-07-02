@@ -1,5 +1,6 @@
 package de.webalf.seymour.service.command;
 
+import lombok.NonNull;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 /**
@@ -8,5 +9,5 @@ import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionE
  */
 public interface DiscordStringSelect {
 	@SuppressWarnings("unused") //Used by InteractionListener#onStringSelectInteraction(StringSelectInteractionEvent)
-	void process(StringSelectInteractionEvent event);
+	void process(@NonNull StringSelectInteractionEvent event);
 }

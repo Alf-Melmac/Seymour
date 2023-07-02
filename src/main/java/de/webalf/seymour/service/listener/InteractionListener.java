@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 import static de.webalf.seymour.util.InteractionUtils.*;
 
@@ -49,8 +50,9 @@ public class InteractionListener extends ListenerAdapter {
 	}
 
 	private void unknownException(@NonNull GenericCommandInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
-		log.error("Failed to execute command interaction {} with options {}", commandClass.getName(), event.getOptions(), e);
-		reply(event, "Sorry. Error A.");
+		final String errorCode = getErrorCode(e);
+		log.error("Failed to execute command interaction {} with options {} - {}", commandClass.getName(), event.getOptions(), errorCode, e);
+		failedInteraction(event, "Sorry. Error Code: `" + errorCode + "`");
 	}
 
 	@Override
@@ -72,8 +74,9 @@ public class InteractionListener extends ListenerAdapter {
 	}
 
 	private void unknownException(@NonNull StringSelectInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
-		log.error("Failed to process string selection menu selection {} with id {}", commandClass.getName(), event.getComponentId(), e);
-		replyAndRemoveComponents(event, "Sorry. Error B.");
+		final String errorCode = getErrorCode(e);
+		log.error("Failed to process string selection menu selection {} with id {} - {}", commandClass.getName(), event.getComponentId(), errorCode, e);
+		replyAndRemoveComponents(event, "Sorry. Error Code: `" + errorCode + "`");
 	}
 
 	@Override
@@ -119,7 +122,13 @@ public class InteractionListener extends ListenerAdapter {
 	}
 
 	private void unknownException(@NonNull ModalInteractionEvent event, @NonNull Class<?> commandClass, ReflectiveOperationException e) {
-		log.error("Failed to execute modal interaction {} with values {}", commandClass.getName(), event.getValues(), e);
-		reply(event, "Sorry. Error C.");
+		final String errorCode = getErrorCode(e);
+		log.error("Failed to process modal interaction {} with values {} - {}", commandClass.getName(), event.getValues(), errorCode, e);
+		failedInteraction(event, "Sorry. Error Code: `" + errorCode + "`");
+	}
+
+	private String getErrorCode(ReflectiveOperationException e) {
+		final String message = e.getMessage();
+		return message != null ? UUID.nameUUIDFromBytes(message.getBytes()).toString() : UUID.randomUUID().toString();
 	}
 }

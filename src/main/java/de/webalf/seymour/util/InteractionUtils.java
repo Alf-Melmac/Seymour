@@ -107,7 +107,7 @@ public final class InteractionUtils {
 	 * @param interaction failed interaction
 	 * @param message     additional information about the error
 	 */
-	public static void failedSlashCommandAction(@NonNull IDeferrableCallback interaction, String message) {
+	public static void failedInteraction(@NonNull IDeferrableCallback interaction, String message) {
 		reply(interaction, Emojis.CROSS_MARK.getFormatted() + " " + message);
 	}
 

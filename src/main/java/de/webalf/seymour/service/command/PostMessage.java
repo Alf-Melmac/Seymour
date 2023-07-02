@@ -19,6 +19,12 @@ import static de.webalf.seymour.util.ModalInteractionUtils.getStringValue;
 import static net.dv8tion.jda.api.interactions.DiscordLocale.GERMAN;
 
 /**
+ * This requires the following permissions to post messages
+ * <ul>
+ *     <li>{@link Permission#VIEW_CHANNEL}</li>
+ *     <li>{@link Permission#MESSAGE_SEND}</li>
+ * </ul>
+ *
  * @author Alf
  * @since 21.02.2021
  */
@@ -41,6 +47,11 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 		log.trace("Slash command: postMessage");
 		final boolean isGerman = isGerman(event);
 
+		if (!event.getMessageChannel().canTalk()) {
+			replyNonDeferred(event, isGerman ? "Ich muss diesen Kanal sehen und Nachrichten senden können, um Nachrichten senden zu dürfen." : "I must be able to see this channel and send messages in order to send messages.");
+			return;
+		}
+
 		final Modal modal = buildMessageModal(isGerman, isGerman ? "Nachricht senden" : "Post message", getClass().getAnnotation(ModalInteraction.class).value());
 
 		replyModal(event, modal);
@@ -61,7 +72,7 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 	}
 
 	@Override
-	public void handle(ModalInteractionEvent event) {
+	public void handle(@NonNull ModalInteractionEvent event) {
 		log.trace("Modal: postMessageModal");
 
 		@SuppressWarnings("ConstantConditions") //Required option
