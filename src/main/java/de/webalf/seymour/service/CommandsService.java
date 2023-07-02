@@ -44,7 +44,7 @@ public class CommandsService {
 	@Async
 	public void updateCommands(@NonNull Guild guild) {
 		log.info("Updating commands for {}...", guild.getName());
-		final List<SlashCommandData> slashCommands = SlashCommandUtils.commandToClassMap.values().stream()
+		final List<SlashCommandData> slashCommands = SlashCommandUtils.get().stream()
 				.map(slashCommandClass -> {
 					final SlashCommand slashCommand = getSlashCommand(slashCommandClass);
 					final SlashCommandData commandData = Commands
@@ -59,7 +59,7 @@ public class CommandsService {
 				}).toList();
 		log.info("Found {} slash commands.", slashCommands.size());
 
-		final List<CommandData> contextMenus = ContextMenuUtils.commandToClassMap.values().stream()
+		final List<CommandData> contextMenus = ContextMenuUtils.get().stream()
 				.map(contextMenuClass -> {
 					final ContextMenu contextMenu = getContextMenu(contextMenuClass);
 					final CommandData commandData = Commands

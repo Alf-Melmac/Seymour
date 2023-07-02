@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import org.atteo.classindex.ClassIndex;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.StreamSupport;
@@ -21,7 +22,7 @@ import static de.webalf.seymour.util.StringUtils.removeNonDigitCharacters;
  */
 @UtilityClass
 public final class SlashCommandUtils {
-	public static final Map<String, Class<?>> commandToClassMap = new HashMap<>();
+	private static final Map<String, Class<?>> commandToClassMap = new HashMap<>();
 
 	static {
 		final Iterable<Class<?>> commandList = ClassIndex.getAnnotated(SlashCommand.class);
@@ -40,23 +41,22 @@ public final class SlashCommandUtils {
 	}
 
 	/**
+	 * Returns all classes annotated with {@link SlashCommand}
+	 *
+	 * @return all slash command classes
+	 */
+	public static Collection<Class<?>> get() {
+		return commandToClassMap.values();
+	}
+
+	/**
 	 * Returns the string value of the given not null {@link OptionMapping}
 	 *
 	 * @param option to get text from
 	 * @return string
 	 */
-	public static String getStringOption(@NonNull OptionMapping option) {
+	private static String getStringOption(@NonNull OptionMapping option) {
 		return option.getAsString();
-	}
-
-	/**
-	 * Returns the string value of the given nullable {@link OptionMapping}
-	 *
-	 * @param option to get text from
-	 * @return string or null
-	 */
-	public static String getOptionalStringOption(OptionMapping option) {
-		return option == null ? null : getStringOption(option);
 	}
 
 	/**

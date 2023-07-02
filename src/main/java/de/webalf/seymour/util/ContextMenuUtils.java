@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import org.atteo.classindex.ClassIndex;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.StreamSupport;
@@ -15,7 +16,7 @@ import java.util.stream.StreamSupport;
  */
 @UtilityClass
 public final class ContextMenuUtils {
-	public static final Map<String, Class<?>> commandToClassMap = new HashMap<>();
+	private static final Map<String, Class<?>> commandToClassMap = new HashMap<>();
 
 	static {
 		final Iterable<Class<?>> commandList = ClassIndex.getAnnotated(ContextMenu.class);
@@ -31,5 +32,14 @@ public final class ContextMenuUtils {
 	 */
 	public static Class<?> get(@NonNull String command) {
 		return commandToClassMap.get(command.toLowerCase());
+	}
+
+	/**
+	 * Returns all classes annotated with {@link ContextMenu}
+	 *
+	 * @return all context menu classes
+	 */
+	public static Collection<Class<?>> get() {
+		return commandToClassMap.values();
 	}
 }

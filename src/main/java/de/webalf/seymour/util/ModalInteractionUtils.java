@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
  */
 @UtilityClass
 public final class ModalInteractionUtils {
-	public static final Map<String, Class<?>> idToClassMap = new HashMap<>();
+	private static final Map<String, Class<?>> idToClassMap = new HashMap<>();
 
 	static {
 		final Iterable<Class<?>> classIterable = ClassIndex.getAnnotated(ModalInteraction.class);
