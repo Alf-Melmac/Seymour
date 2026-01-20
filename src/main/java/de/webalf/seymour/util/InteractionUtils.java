@@ -4,6 +4,8 @@ import de.webalf.seymour.constant.Emojis;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
@@ -11,8 +13,7 @@ import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
 import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 import java.util.function.Consumer;
 
@@ -79,7 +80,7 @@ public final class InteractionUtils {
 	 * @param selectionMenu to add
 	 */
 	public static void addSelectionMenu(@NonNull IDeferrableCallback interaction, StringSelectMenu selectionMenu) {
-		interaction.getHook().sendMessage(ZERO_WIDTH_SPACE).addActionRow(selectionMenu).queue();
+		interaction.getHook().sendMessage(ZERO_WIDTH_SPACE).addComponents(ActionRow.of(selectionMenu)).queue();
 	}
 
 	/**

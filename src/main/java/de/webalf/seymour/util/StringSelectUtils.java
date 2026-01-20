@@ -3,7 +3,7 @@ package de.webalf.seymour.util;
 import de.webalf.seymour.model.annotations.StringSelectInteraction;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.components.selections.SelectOption;
 import org.atteo.classindex.ClassIndex;
 
 import java.util.HashMap;

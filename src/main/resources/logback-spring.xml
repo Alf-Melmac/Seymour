@@ -29,10 +29,4 @@
 		<appender-ref ref="Console"/>
 	</root>
 
-	<!-- LOG "de.webalf" at DEBUG level -->
-	<logger name="de.webalf" level="debug" additivity="false">
-		<appender-ref ref="RollingFile"/>
-		<appender-ref ref="Console"/>
-	</logger>
-
 </configuration>

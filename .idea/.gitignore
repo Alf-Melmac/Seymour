@@ -17,4 +17,6 @@ sonarlint-state.xml
 sonarlint/
 sonarlint.xml
 discord.xml
-jpa-buddy.xml
+jpa*.xml
+copilot.data.migration.*.xml
+copilotDiffState.xml

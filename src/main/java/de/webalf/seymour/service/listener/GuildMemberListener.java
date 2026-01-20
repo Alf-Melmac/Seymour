@@ -1,6 +1,5 @@
 package de.webalf.seymour.service.listener;
 
-import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.service.WelcomeService;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -32,12 +31,10 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GuildMemberListener extends ListenerAdapter {
-	private final InviteService inviteService;
 	private final WelcomeService welcomeService;
 
 	@Override
 	public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-		inviteService.memberJoined(event.getGuild(), event.getMember());
 		welcomeService.memberJoined(event.getGuild(), event.getMember());
 	}
 

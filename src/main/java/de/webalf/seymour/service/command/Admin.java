@@ -3,11 +3,11 @@ package de.webalf.seymour.service.command;
 import de.webalf.seymour.constant.Emojis;
 import de.webalf.seymour.model.annotations.SlashCommand;
 import de.webalf.seymour.model.annotations.StringSelectInteraction;
-import de.webalf.seymour.service.InviteService;
 import de.webalf.seymour.util.StringSelectUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -15,13 +15,11 @@ import net.dv8tion.jda.api.entities.channel.Channel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static de.webalf.seymour.util.InteractionUtils.*;
-import static de.webalf.seymour.util.StringUtils.invitesToString;
 
 /**
  * @author Alf
@@ -38,8 +36,7 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 		GUILD_TEST,
 		CHANNEL_TEST,
 		USER_TEST,
-		CLEAR_CHANNEL,
-		INVITE_LIST
+		CLEAR_CHANNEL
 	}
 
 	@Override
@@ -61,7 +58,7 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 	public void process(@NonNull StringSelectInteractionEvent event) {
 		log.trace("Selection menu: admin");
 
-		switch (Command.valueOf(event.getValues().get(0))) {
+		switch (Command.valueOf(event.getValues().getFirst())) {
 			case PING -> replyAndRemoveComponents(event, "Pong");
 			case GUILD_TEST -> {
 				final Guild guild = event.getGuild();
@@ -88,9 +85,6 @@ public class Admin implements DiscordSlashCommand, DiscordStringSelect {
 						.thenRun(() -> textChannel.purgeMessages(messages));
 				replyAndRemoveComponents(event, "Deletion started");
 			}
-			case INVITE_LIST ->
-				//noinspection DataFlowIssue Guild only command
-					replyAndRemoveComponents(event, invitesToString(InviteService.getGUILD_INVITES().get(event.getGuild().getIdLong())));
 			default -> replyAndRemoveComponents(event, Emojis.CHECKBOX.getFormatted());
 		}
 	}

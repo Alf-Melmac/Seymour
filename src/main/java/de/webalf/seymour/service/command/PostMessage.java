@@ -7,12 +7,13 @@ import de.webalf.seymour.util.MessageUtils;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.label.Label;
+import net.dv8tion.jda.api.components.textinput.TextInput;
+import net.dv8tion.jda.api.components.textinput.TextInputStyle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.modals.Modal;
 
 import static de.webalf.seymour.util.InteractionUtils.*;
 import static de.webalf.seymour.util.ModalInteractionUtils.getStringValue;
@@ -61,13 +62,13 @@ public class PostMessage implements DiscordSlashCommand, DiscordModal {
 		final String inputLabel = "Text";
 		final String inputPlaceholder = german ? "Zu versendender Text" : "Text to send";
 
-		final TextInput textInput = TextInput.create(MESSAGE_CONTENT, inputLabel, TextInputStyle.PARAGRAPH)
+		final TextInput textInput = TextInput.create(MESSAGE_CONTENT, TextInputStyle.PARAGRAPH)
 				.setPlaceholder(inputPlaceholder)
 				.setRequiredRange(1, Message.MAX_CONTENT_LENGTH)
 				.build();
 
 		return Modal.create(id, modalTitle)
-				.addActionRow(textInput)
+				.addComponents(Label.of(inputLabel, textInput))
 				.build();
 	}
 

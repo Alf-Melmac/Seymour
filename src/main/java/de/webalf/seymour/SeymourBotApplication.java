@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @ConfigurationPropertiesScan("de.webalf.seymour.configuration.properties")
 public class SeymourBotApplication {
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		final ApplicationContext applicationContext = SpringApplication.run(SeymourBotApplication.class, args);
 
 		//Start discord bot

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<!--https://github.com/spring-projects/spring-boot/releases -->
-		<version>3.5.4</version>
+		<version>4.0.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -21,23 +21,16 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 		<!--Versions-->
-		<java.version>21</java.version>
+		<maven.compiler.release>25</maven.compiler.release>
 		<!--https://github.com/atteo/classindex/tags -->
 		<classindex.version>3.13</classindex.version>
 		<!--https://github.com/DV8FromTheWorld/JDA/releases -->
-		<jda.version>5.6.1</jda.version>
+		<jda.version>6.3.0</jda.version>
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
-			<exclusions>
-				<!--Exclude vulnerable dependency (version 1.33)-->
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -61,6 +54,10 @@
 					<groupId>club.minnced</groupId>
 					<artifactId>opus-java</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.google.crypto.tink</groupId>
+					<artifactId>tink</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 	</dependencies>
@@ -71,7 +68,7 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
-					<executable>true</executable>
+					<includeTools>false</includeTools>
 					<excludes>
 						<exclude>
 							<groupId>org.springframework.boot</groupId>
@@ -88,8 +85,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
+					<release>${maven.compiler.release}</release>
 					<annotationProcessorPaths>
 						<path>
 							<groupId>org.projectlombok</groupId>

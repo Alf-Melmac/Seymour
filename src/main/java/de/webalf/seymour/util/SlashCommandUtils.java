@@ -70,7 +70,7 @@ public final class SlashCommandUtils {
 		GuildChannelUnion channel;
 		try {
 			channel = option.getAsChannel();
-		} catch (Exception ignored) {
+		} catch (Exception _) {
 			return null;
 		}
 

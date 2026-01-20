@@ -1,7 +1,6 @@
 package de.webalf.seymour.service;
 
 import de.webalf.seymour.configuration.properties.DiscordProperties;
-import de.webalf.seymour.service.listener.GuildInviteListener;
 import de.webalf.seymour.service.listener.GuildMemberListener;
 import de.webalf.seymour.service.listener.GuildReadyListener;
 import de.webalf.seymour.service.listener.InteractionListener;
@@ -26,7 +25,6 @@ import static net.dv8tion.jda.api.requests.GatewayIntent.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class BotService {
 	private final DiscordProperties discordProperties;
-	private final InviteService inviteService;
 	private final WelcomeService welcomeService;
 	private final CommandsService commandsService;
 	private final CommandClassHelper commandClassHelper;
@@ -44,13 +42,12 @@ public class BotService {
 
 		jda = JDABuilder
 				.createLight(token)
-				.enableIntents(GUILD_MEMBERS, GUILD_INVITES, MESSAGE_CONTENT)
+				.enableIntents(GUILD_MEMBERS, MESSAGE_CONTENT)
 				.addEventListeners(
-						new GuildReadyListener(inviteService, welcomeService, commandsService),
-						new GuildInviteListener(inviteService),
-						new GuildMemberListener(inviteService, welcomeService),
+						new GuildReadyListener(welcomeService, commandsService),
+						new GuildMemberListener(welcomeService),
 						new InteractionListener(commandClassHelper))
-				.disableIntents(GUILD_MODERATION, GUILD_EXPRESSIONS, GUILD_WEBHOOKS, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, GUILD_MESSAGE_TYPING, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, DIRECT_MESSAGE_TYPING, SCHEDULED_EVENTS, AUTO_MODERATION_CONFIGURATION, AUTO_MODERATION_EXECUTION)
+				.disableIntents(GUILD_MODERATION, GUILD_EXPRESSIONS, GUILD_WEBHOOKS, GUILD_INVITES, GUILD_VOICE_STATES, GUILD_PRESENCES, GUILD_MESSAGES, GUILD_MESSAGE_REACTIONS, GUILD_MESSAGE_TYPING, DIRECT_MESSAGES, DIRECT_MESSAGE_REACTIONS, DIRECT_MESSAGE_TYPING, SCHEDULED_EVENTS, AUTO_MODERATION_CONFIGURATION, AUTO_MODERATION_EXECUTION, GUILD_MESSAGE_POLLS, DIRECT_MESSAGE_POLLS)
 				.build();
 	}
 

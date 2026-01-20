@@ -19,8 +19,6 @@ public class DiscordProperties {
 	@NotNull
 	private String token;
 
-	private Map<Long, Long> modLog;
-
 	private Map<Long, WelcomeChannel> welcomeChannel;
 
 	@Data
