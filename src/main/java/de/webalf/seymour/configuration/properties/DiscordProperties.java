@@ -6,6 +6,7 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,7 +20,7 @@ public class DiscordProperties {
 	@NotNull
 	private String token;
 
-	private Map<Long, WelcomeChannel> welcomeChannel;
+	private Map<Long, WelcomeChannel> welcomeChannel = new HashMap<>();
 
 	@Data
 	public static class WelcomeChannel {
